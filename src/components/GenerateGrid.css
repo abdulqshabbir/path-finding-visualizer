@@ -1,0 +1,77 @@
+:root {
+  --NUM_OF_ROWS: 20;
+  --NUM_OF_COLUMNS: 20;
+  --navy-blue: #34495e;
+  --turquoise: #1abc9c;
+}
+
+.menu-container {
+  display: grid;
+  background-color: var(--navy-blue);
+  height: 75px;
+  color: white;
+}
+
+.menu {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr;
+  align-content: center;
+  align-items: center;
+  justify-items: center;
+  width: 80vw;
+}
+
+button {
+  height: 30px;
+  border-radius: 10%;
+}
+
+.title {
+  font-size: 1.5em;
+  font-family: sans-serif;
+  flex-basis: 40%;
+  height: 30px;
+}
+
+.grid-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--NUM_OF_COLUMNS), 1fr);
+  grid-template-rows: repeat(var(--NUM_OF_ROWS));
+  background-color: #2196f3;
+  width: 1000px;
+  height: 1000px;
+  grid-gap: 1px;
+}
+.node {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 30px;
+}
+
+.start-node {
+  background-color: blue;
+}
+
+.end-node {
+  background-color: green;
+}
+
+.visited {
+  background-color: gray;
+}
+
+.hover {
+  background-color: lightgray;
+}
