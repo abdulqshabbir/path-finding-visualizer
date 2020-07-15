@@ -3,48 +3,54 @@
   --NUM_OF_COLUMNS: 20;
   --navy-blue: #34495e;
   --turquoise: #1abc9c;
+  --light-blue: #2196f3;
 }
 
 .menu-container {
   display: grid;
   background-color: var(--navy-blue);
-  height: 75px;
+  height: 8vh;
   color: white;
+  font-weight: 400;
+  margin-bottom: 5vh;
 }
 
 .menu {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr;
-  align-content: center;
+  grid-template-columns: 2fr 2fr 1fr 1fr;
+  justify-content: center;
   align-items: center;
   justify-items: center;
-  width: 80vw;
+  width: 100vw;
 }
 
-button {
-  height: 30px;
-  border-radius: 10%;
+div.ui.button.algorithms {
+  width: 250px;
+  height: 40px;
+  padding: 10px;
+  text-align: center;
+}
+
+div.menu.transition {
+  width: 250px;
 }
 
 .title {
-  font-size: 1.5em;
+  font-size: 2em;
   font-family: sans-serif;
-  flex-basis: 40%;
-  height: 30px;
+  height: 0px;
 }
 
 .grid-container {
-  display: flex;
+  display: grid;
   justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(var(--NUM_OF_COLUMNS), 1fr);
-  grid-template-rows: repeat(var(--NUM_OF_ROWS));
-  background-color: #2196f3;
+  grid-template-rows: repeat(var(--NUM_OF_ROWS), 1fr);
+  background-color: var(--light-blue);
   width: 1000px;
   height: 1000px;
   grid-gap: 1px;

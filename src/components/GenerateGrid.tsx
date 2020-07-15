@@ -10,7 +10,7 @@ interface State {
   grid: Node[][];
   startNode: Node | null;
   endNode: Node | null;
-  isAnimating: boolean;
+  inProgress: boolean;
 }
 
 class PathVisualizer extends React.Component<any, State> {
@@ -20,7 +20,7 @@ class PathVisualizer extends React.Component<any, State> {
       grid: generateGrid(NUM_OF_ROWS, NUM_OF_COLUMNS),
       startNode: null,
       endNode: null,
-      isAnimating: false,
+      inProgress: false,
     };
   }
 
@@ -67,21 +67,15 @@ class PathVisualizer extends React.Component<any, State> {
         endNode: { ...endNode, isEnd: true },
         grid: updatedGrid,
       });
-    } else {
-      this.toggleVisited(row, column);
     }
   }
 
-  toggleVisited(row: number, column: number) {
-    let updatedState: Node[][] = this.state.grid.slice();
-    updatedState[row][column].visited = !updatedState[row][column].visited;
-    this.setState({ grid: updatedState });
-  }
-
   toggleHover(e: React.MouseEvent, row: number, column: number) {
-    let updatedState: Node[][] = this.state.grid.slice();
-    updatedState[row][column].hover = !updatedState[row][column].hover;
-    this.setState({ grid: updatedState });
+    if (!this.state.inProgress) {
+      let updatedState: Node[][] = this.state.grid.slice();
+      updatedState[row][column].hover = !updatedState[row][column].hover;
+      this.setState({ grid: updatedState });
+    }
   }
 
   animateShortestPath(e: React.MouseEvent) {
@@ -104,10 +98,7 @@ class PathVisualizer extends React.Component<any, State> {
     let shortestPath: NodeTuple[] = g.findShortestPath();
 
     // keep track of when program is animating to prevent user from starting another search while a search is happening
-    this.setState({ isAnimating: true });
-    setTimeout(() => {
-      this.setState({ isAnimating: false });
-    }, 20 * shortestPath.length);
+    this.setState({ inProgress: true });
 
     // FOR each frame in shortestPath, make a call to delayAnimation
     for (let i = 0; i < shortestPath.length; i++) {
@@ -149,7 +140,7 @@ class PathVisualizer extends React.Component<any, State> {
       grid: newGrid,
       startNode: null,
       endNode: null,
-      isAnimating: false,
+      inProgress: false,
     });
   }
 
@@ -158,16 +149,23 @@ class PathVisualizer extends React.Component<any, State> {
       <React.Fragment>
         <div className="menu-container">
           <div className="menu">
-            <div className="title">Welcome to Path Finder!</div>
-            <div className="algorithms">
+            <div className="title">Path Finder</div>
+            <div className="dropdown-container">
               <Dropdown
+                button
                 placeholder="Select algorithm"
                 options={algorithmOptions}
-                className="algorithms-dropdown"
+                className="algorithms"
               />
             </div>
             <Button
-              disabled={this.state.isAnimating ? true : false}
+              disabled={
+                this.state.startNode &&
+                this.state.endNode &&
+                !this.state.inProgress
+                  ? false
+                  : true
+              }
               onClick={(e: React.MouseEvent) =>
                 this.animateShortestPath.bind(this, e)()
               }
@@ -184,7 +182,10 @@ class PathVisualizer extends React.Component<any, State> {
           </div>
         </div>
         <div className="grid-container">
-          <div className="grid">
+          <div
+            className={"grid"}
+            style={!this.state.inProgress ? { cursor: "pointer" } : {}}
+          >
             {this.state.grid.map((row) => {
               return row.map((node) => {
                 let row = node.row;
@@ -204,7 +205,8 @@ class PathVisualizer extends React.Component<any, State> {
                   ${node.visited ? "visited" : null} 
                   ${node.hover ? "hover" : null}
                   ${node.isStart ? "start-node" : null}
-                  ${node.isEnd ? "end-node" : null}`}
+                  ${node.isEnd ? "end-node" : null}
+                  `}
                   ></div>
                 );
               });
