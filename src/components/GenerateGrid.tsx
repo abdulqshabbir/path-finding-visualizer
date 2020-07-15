@@ -1,7 +1,8 @@
 import React from "react";
 import "./GenerateGrid.css";
-import graph, { NodeTuple } from "./Dijkstra";
+import graph from "./Dijkstra";
 import { Dropdown, Button } from "semantic-ui-react";
+import { Node, NodeTuple } from "./Node";
 
 export const NUM_OF_ROWS: number = 20;
 export const NUM_OF_COLUMNS: number = 20;
@@ -95,18 +96,18 @@ class PathVisualizer extends React.Component<any, State> {
       NUM_OF_ROWS,
       NUM_OF_COLUMNS
     );
-    let shortestPath: NodeTuple[] = g.findShortestPath();
 
     // keep track of when program is animating to prevent user from starting another search while a search is happening
     this.setState({ inProgress: true });
 
+    var shortestPath: Node[] = g.findShortestPath();
     // FOR each frame in shortestPath, make a call to delayAnimation
     for (let i = 0; i < shortestPath.length; i++) {
-      let node: NodeTuple = shortestPath[i];
-      delayAnimation(node, i);
+      let node: NodeTuple = [shortestPath[i].row, shortestPath[i].column];
+      delayShortestPathAnimation(node, i);
     }
 
-    function delayAnimation(nodeTuple: NodeTuple, i: number) {
+    function delayShortestPathAnimation(nodeTuple: NodeTuple, i: number) {
       setTimeout(() => {
         that.setState({ grid: updateVisitedPropertyOfNode(nodeTuple, that) });
       }, 20 * i);
@@ -217,31 +218,6 @@ class PathVisualizer extends React.Component<any, State> {
     );
   }
 }
-
-interface Node {
-  row: number;
-  column: number;
-  isStart: boolean;
-  isEnd: boolean;
-  visited: boolean;
-  hover: boolean;
-  distanceFromStart: number;
-  previous: Node | null;
-}
-
-class Node {
-  constructor(row: number, column: number) {
-    this.row = row;
-    this.column = column;
-    this.isStart = false;
-    this.isEnd = false;
-    this.visited = false;
-    this.hover = false;
-    this.distanceFromStart = Infinity;
-    this.previous = null;
-  }
-}
-
 function generateGrid(numRows: number, numColumns: number) {
   let grid: Node[][] = [];
   for (let i = 1; i <= numRows; i++) {

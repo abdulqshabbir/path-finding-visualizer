@@ -1,3 +1,5 @@
+import { Node } from "./Node";
+
 interface graph {
   startNode: Node;
   endNode: Node;
@@ -5,8 +7,6 @@ interface graph {
   numRows: number;
   numColumns: number;
 }
-
-export type NodeTuple = [number, number];
 
 class graph {
   constructor(
@@ -101,7 +101,7 @@ class graph {
       return false;
     }
   }
-  findShortestPath() {
+  findShortestPath(): Node[] {
     // WHILE there is an unvisited node
     // get closestNode from start (call it 'current')
     // look up current's neighbours
@@ -109,9 +109,11 @@ class graph {
     // find distance from startNode to that neighbour
     // if distanceToNeighbour < distanceFromStart
     // update distance
-    // update previuos
+    // update previous
     // mark current as visited
     let unvisitedNodes: Node[] = this.findUnvisitedNodes();
+    var gridFrames: Node[][][] = [];
+    let gridFrame: Node[][] = [];
 
     while (unvisitedNodes.length !== 0) {
       let current: Node = this.findClosestUnvisitedNode(unvisitedNodes);
@@ -120,6 +122,10 @@ class graph {
         current.column
       );
 
+      // FOR each neighbour
+      //  if the distance from start < known distance update the distance
+      //  keep a pointer to the previous node
+      //  update the neighbourVisited property of the neighbour
       currentNeighbours.forEach((neighbour) => {
         if (!this.isNeighbourVisited(neighbour)) {
           let distanceToNeighbour: number = current.distanceFromStart + 1;
@@ -129,6 +135,7 @@ class graph {
               neighbour.column
             ].distanceFromStart = distanceToNeighbour;
             this.grid[neighbour.row][neighbour.column].previous = current;
+            this.grid[neighbour.row][neighbour.column].neighbourVisited = true;
           }
         }
       });
@@ -156,14 +163,20 @@ class graph {
           }
         });
       });
+
+      // push the state of a single 'frame' of the grid onto the gridFrames
+      gridFrame = this.grid.slice();
+      gridFrames.push(gridFrame);
     }
 
-    let startRow: number = this.startNode.row;
-    let startColumn: number = this.startNode.column;
-    let endRow: number = this.endNode.row;
-    let endColumn: number = this.endNode.column;
+    let startRow: number = this.startNode.row,
+      startColumn: number = this.startNode.column,
+      endRow: number = this.endNode.row,
+      endColumn: number = this.endNode.column,
+      currentNode: Node = this.grid[endRow][endColumn];
+
     let shortestPath: Node[] = [this.grid[endRow][endColumn]];
-    let currentNode: Node = this.grid[endRow][endColumn];
+
     while (true) {
       if (currentNode.row === startRow && currentNode.column === startColumn) {
         break;
@@ -176,37 +189,8 @@ class graph {
         }
       }
     }
-
-    let trimmedShortestPath: NodeTuple[] = shortestPath.map((n) => [
-      n.row,
-      n.column,
-    ]);
-    return trimmedShortestPath;
+    return shortestPath;
   }
 }
 
 export default graph;
-
-interface Node {
-  row: number;
-  column: number;
-  isStart: boolean;
-  isEnd: boolean;
-  visited: boolean;
-  hover: boolean;
-  distanceFromStart: number;
-  previous: Node | null;
-}
-
-class Node {
-  constructor(row: number, column: number) {
-    this.row = row;
-    this.column = column;
-    this.isStart = false;
-    this.isEnd = false;
-    this.visited = false;
-    this.hover = false;
-    this.distanceFromStart = Infinity;
-    this.previous = null;
-  }
-}

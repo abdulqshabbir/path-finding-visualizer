@@ -1,5 +1,5 @@
 import React from "react";
-import Grid from "./GenerateGrid.tsx";
+import Grid from "./GenerateGrid";
 
 function Main() {
   return (

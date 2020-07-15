@@ -78,6 +78,10 @@ div.menu.transition {
   background-color: yellow;
 }
 
+.neighbour-visited {
+  background-color: pink;
+}
+
 .hover {
   background-color: lightblue;
 }
