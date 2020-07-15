@@ -1,5 +1,5 @@
 import React from "react";
-import "./GenerateGrid.css";
+import "./Grid.css";
 import graph from "./Dijkstra";
 import { Dropdown, Button } from "semantic-ui-react";
 import { Node, NodeTuple } from "./Node";
