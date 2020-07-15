@@ -1,89 +1,34 @@
-import { Node, generateGrid } from "./GenerateGrid";
+interface graph {
+  startNode: Node;
+  endNode: Node;
+  grid: Node[][];
+  numRows: number;
+  numColumns: number;
+}
 
 export type NodeTuple = [number, number];
 
-interface DistancesFromStart {
-  [node: string]: number;
-}
-
-interface PreviousNode {
-  [node: string]: string;
-}
-
-interface AdjacencyList {
-  [node: string]: Array<NodeTuple>;
-}
-
-interface graph {
-  NUM_OF_ROWS: number;
-  NUM_OF_COLUMNS: number;
-  startNode: NodeTuple;
-  endNode: NodeTuple;
-  grid: Node[][];
-  adjacencyList: AdjacencyList;
-  unvisited: Array<NodeTuple>;
-  distancesFromStart: DistancesFromStart;
-  previousNode: PreviousNode;
-}
-
 class graph {
   constructor(
-    rows: number,
-    columns: number,
-    startNode: NodeTuple,
-    endNode: NodeTuple
+    grid: Node[][],
+    startNode: Node,
+    endNode: Node,
+    numRows: number,
+    numColumns: number
   ) {
-    this.NUM_OF_ROWS = rows;
-    this.NUM_OF_COLUMNS = columns;
     this.startNode = startNode;
     this.endNode = endNode;
-    this.grid = generateGrid(rows, columns);
-    this.adjacencyList = this.transformGridToAdjList();
-    this.unvisited = this.initializeUnvisitedList();
-    this.distancesFromStart = this.initializeDistancesFromStart();
-    this.previousNode = this.initializePreviousNode();
+    this.grid = grid;
+    this.numRows = numRows;
+    this.numColumns = numColumns;
   }
-  initializeDistancesFromStart() {
-    let distancesFromStart: DistancesFromStart = {};
-    for (let node of Object.keys(this.adjacencyList)) {
-      distancesFromStart[node] = Infinity;
-      distancesFromStart[JSON.stringify(this.startNode)] = 0;
-    }
-    return distancesFromStart;
-  }
-  initializePreviousNode() {
-    let previousNode: PreviousNode = {};
-    for (let node of Object.keys(this.adjacencyList)) {
-      previousNode[node] = JSON.stringify(this.startNode);
-    }
-    return previousNode;
-  }
-  initializeUnvisitedList() {
-    let unvisited: Array<NodeTuple> = [];
-    for (let node of Object.keys(this.adjacencyList)) {
-      unvisited.push(JSON.parse(node));
-    }
-    return unvisited;
-  }
-  transformGridToAdjList() {
-    let adjacencyList: AdjacencyList = {};
-    this.grid.forEach((row) => {
-      row.forEach((node) => {
-        // for each node find its neighbours
-        let nodeLocation = JSON.stringify([node.row, node.column]);
-        let neighbours = this.findNeighbours(node.row, node.column);
-        // concat neighbours onto the adjacency list
-        adjacencyList[nodeLocation] = [...neighbours];
-      });
-    });
-    return adjacencyList;
-  }
+
   positionIsValid(position: number) {
     // position is a row or column value for a particular node
     if (
       position >= 1 &&
-      position <= this.NUM_OF_ROWS &&
-      position <= this.NUM_OF_COLUMNS
+      position <= this.numRows &&
+      position <= this.numColumns
     ) {
       return true;
     } else {
@@ -91,96 +36,177 @@ class graph {
     }
   }
   findNeighbours(row: number, column: number) {
-    let neighbours: Array<NodeTuple> = [];
+    let neighbours: Node[] = [];
     if (this.positionIsValid(row) && this.positionIsValid(column - 1)) {
-      neighbours.push([row, column - 1]);
+      neighbours.push(this.grid[row][column - 1]);
     }
     if (this.positionIsValid(row - 1) && this.positionIsValid(column)) {
-      neighbours.push([row - 1, column]);
+      neighbours.push(this.grid[row - 1][column]);
     }
     if (this.positionIsValid(row + 1) && this.positionIsValid(column)) {
-      neighbours.push([row + 1, column]);
+      neighbours.push(this.grid[row + 1][column]);
     }
     if (this.positionIsValid(row) && this.positionIsValid(column + 1)) {
-      neighbours.push([row, column + 1]);
+      neighbours.push(this.grid[row][column + 1]);
     }
     return neighbours;
   }
-  getClosestUnvisitedNodeFromStart(): string {
-    let closestNode: string = JSON.stringify(this.startNode);
+  markNodeAsVisited(visitedRow: number, visitedColumn: number) {
+    this.grid = this.grid.map((row) =>
+      row.map((node) => {
+        if (node.row === visitedRow && node.column === visitedColumn) {
+          return {
+            ...node,
+            visited: true,
+          };
+        } else {
+          return node;
+        }
+      })
+    );
+  }
+  findUnvisitedNodes(): Node[] {
+    let unvisitedNodes: Node[] = [];
+
+    this.grid.forEach((row) => {
+      row.forEach((node) => {
+        if (!node.visited) {
+          unvisitedNodes.push(node);
+        }
+      });
+    });
+    return unvisitedNodes;
+  }
+  findClosestUnvisitedNode(unvisitedNodes: Node[]): Node {
+    let closestNode: Node = this.startNode;
     let minDistance: number = 1000000;
-    for (let i = 0; i < this.unvisited.length; i++) {
-      // for each node in unvisited list
-      // check if the distance to that node from the startNode is less than currentDistance
-      // if yes, update minDistance and closestNode
-      // if not, keep iterating over unvisited array
-      let node = JSON.stringify(this.unvisited[i]);
-      if (this.distancesFromStart[node] < minDistance) {
-        minDistance = this.distancesFromStart[node];
+
+    // FOR each unvisited node, if distance from start is less than minDistance than update minDistance and closestNode
+    unvisitedNodes.forEach((node) => {
+      // note that node is type NodeTuple and the first element stores the row of node and the second element store the column of the node
+      let nodeDistance = node.distanceFromStart;
+      if (nodeDistance < minDistance) {
+        minDistance = nodeDistance;
         closestNode = node;
       }
-    }
+    });
+
     return closestNode;
   }
-  isNeighbourInUnvisited(neighbour: NodeTuple): boolean {
-    let neighbourString = JSON.stringify(neighbour);
-    let nodeString: string;
-    for (let i = 0; i < this.unvisited.length; i++) {
-      nodeString = JSON.stringify(this.unvisited[i]);
-      if (nodeString === neighbourString) {
-        return true;
-      }
+  isNeighbourVisited(neighbour: Node): boolean {
+    let isVisited: boolean = this.grid[neighbour.row][neighbour.column].visited;
+    if (isVisited) {
+      return true;
+    } else {
+      return false;
     }
-    return false;
   }
   findShortestPath() {
-    // Get closest vertex from the start node (shortest distance away from start)
-    // Look up that vertexs' neighbours
-    // For each neighbour that has NOT been visited
-    // find distance to the neighbour
-    // if distance to neighbour < known distance to neighbour from start
+    // WHILE there is an unvisited node
+    // get closestNode from start (call it 'current')
+    // look up current's neighbours
+    // FOR each neighbour
+    // find distance from startNode to that neighbour
+    // if distanceToNeighbour < distanceFromStart
     // update distance
-    // update previous object
-    // remove closest vertex away from unvisited
+    // update previuos
+    // mark current as visited
+    let unvisitedNodes: Node[] = this.findUnvisitedNodes();
 
-    while (this.unvisited.length !== 0) {
-      let current: string = this.getClosestUnvisitedNodeFromStart();
-      let currentNeighbours: Array<NodeTuple> = this.adjacencyList[current];
+    while (unvisitedNodes.length !== 0) {
+      let current: Node = this.findClosestUnvisitedNode(unvisitedNodes);
+      let currentNeighbours: Node[] = this.findNeighbours(
+        current.row,
+        current.column
+      );
 
       currentNeighbours.forEach((neighbour) => {
-        if (this.isNeighbourInUnvisited(neighbour)) {
-          let distanceToNeighbour: number =
-            this.distancesFromStart[current] + 1;
-          let neighbourKey = JSON.stringify(neighbour);
-          if (distanceToNeighbour < this.distancesFromStart[neighbourKey]) {
-            this.distancesFromStart[neighbourKey] = distanceToNeighbour;
-            this.previousNode[neighbourKey] = current;
+        if (!this.isNeighbourVisited(neighbour)) {
+          let distanceToNeighbour: number = current.distanceFromStart + 1;
+          let knownDistance: number = neighbour.distanceFromStart;
+          if (distanceToNeighbour < knownDistance) {
+            this.grid[neighbour.row][
+              neighbour.column
+            ].distanceFromStart = distanceToNeighbour;
+            this.grid[neighbour.row][neighbour.column].previous = current;
           }
         }
       });
 
-      // current is visited, so remove from unvisited list
-      this.unvisited = this.unvisited.filter(
-        (node) => JSON.stringify(node) !== current
-      );
+      // current node is now visited, so remove from unvisited list
+      unvisitedNodes = unvisitedNodes.filter((node) => {
+        if (current.row === node.row && current.column === node.column) {
+          // remove current node
+          return false;
+        } else {
+          return true;
+        }
+      });
+
+      // mark current as visited in grid
+      this.grid = this.grid.map((row) => {
+        return row.map((node) => {
+          if (node.row === current.row && node.column === current.column) {
+            return {
+              ...node,
+              visited: true,
+            };
+          } else {
+            return node;
+          }
+        });
+      });
     }
 
-    let startNode: string = JSON.stringify(this.startNode);
-    let endNode: string = JSON.stringify(this.endNode);
-    let shortestPath: string[] = [endNode];
-    let currentNode: string = endNode;
-
+    let startRow: number = this.startNode.row;
+    let startColumn: number = this.startNode.column;
+    let endRow: number = this.endNode.row;
+    let endColumn: number = this.endNode.column;
+    let shortestPath: Node[] = [this.grid[endRow][endColumn]];
+    let currentNode: Node = this.grid[endRow][endColumn];
     while (true) {
-      if (currentNode === startNode) {
+      if (currentNode.row === startRow && currentNode.column === startColumn) {
         break;
       } else {
-        currentNode = this.previousNode[currentNode];
-        shortestPath.unshift(currentNode);
+        if (currentNode.previous !== null) {
+          currentNode = currentNode.previous;
+          shortestPath.unshift(currentNode);
+        } else {
+          break;
+        }
       }
     }
 
-    return shortestPath;
+    let trimmedShortestPath: NodeTuple[] = shortestPath.map((n) => [
+      n.row,
+      n.column,
+    ]);
+    return trimmedShortestPath;
   }
 }
 
 export default graph;
+
+interface Node {
+  row: number;
+  column: number;
+  isStart: boolean;
+  isEnd: boolean;
+  visited: boolean;
+  hover: boolean;
+  distanceFromStart: number;
+  previous: Node | null;
+}
+
+class Node {
+  constructor(row: number, column: number) {
+    this.row = row;
+    this.column = column;
+    this.isStart = false;
+    this.isEnd = false;
+    this.visited = false;
+    this.hover = false;
+    this.distanceFromStart = Infinity;
+    this.previous = null;
+  }
+}

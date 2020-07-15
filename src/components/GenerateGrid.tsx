@@ -1,16 +1,16 @@
 import React from "react";
 import "./GenerateGrid.css";
 import graph, { NodeTuple } from "./Dijkstra";
-import { Dropdown } from "semantic-ui-react";
+import { Dropdown, Button } from "semantic-ui-react";
 
 export const NUM_OF_ROWS: number = 20;
 export const NUM_OF_COLUMNS: number = 20;
 
 interface State {
   grid: Node[][];
-  adjacencyList: AdjacencyListNode;
-  startNode: NodeTuple | null;
-  endNode: NodeTuple | null;
+  startNode: Node | null;
+  endNode: Node | null;
+  isAnimating: boolean;
 }
 
 class PathVisualizer extends React.Component<any, State> {
@@ -18,11 +18,9 @@ class PathVisualizer extends React.Component<any, State> {
     super(props);
     this.state = {
       grid: generateGrid(NUM_OF_ROWS, NUM_OF_COLUMNS),
-      adjacencyList: transformGridToAdjList(
-        generateGrid(NUM_OF_ROWS, NUM_OF_COLUMNS)
-      ),
       startNode: null,
       endNode: null,
+      isAnimating: false,
     };
   }
 
@@ -35,6 +33,7 @@ class PathVisualizer extends React.Component<any, State> {
           if (n.row === row && n.column === column) {
             return {
               ...n,
+              distanceFromStart: 0,
               isStart: true,
             };
           } else {
@@ -42,7 +41,11 @@ class PathVisualizer extends React.Component<any, State> {
           }
         })
       );
-      this.setState({ startNode: [row, column], grid: updatedGrid });
+      let startNode = new Node(row, column);
+      this.setState({
+        startNode: { ...startNode, isStart: true, distanceFromStart: 0 },
+        grid: updatedGrid,
+      });
     }
     // if end node is not yet selected, select it
     else if (this.state.endNode === null) {
@@ -58,14 +61,19 @@ class PathVisualizer extends React.Component<any, State> {
           }
         })
       );
-      this.setState({ endNode: [row, column], grid: updatedGrid });
+
+      let endNode = new Node(row, column);
+      this.setState({
+        endNode: { ...endNode, isEnd: true },
+        grid: updatedGrid,
+      });
     } else {
       this.toggleVisited(row, column);
     }
   }
 
   toggleVisited(row: number, column: number) {
-    let updatedState: Node[][] | null = this.state.grid.slice();
+    let updatedState: Node[][] = this.state.grid.slice();
     updatedState[row][column].visited = !updatedState[row][column].visited;
     this.setState({ grid: updatedState });
   }
@@ -79,26 +87,38 @@ class PathVisualizer extends React.Component<any, State> {
   animateShortestPath(e: React.MouseEvent) {
     // use 'that' to reference the PathVisualizer class from within setTimeout call
     let that = this;
+
+    // if startNode and endNode are not selected, do not continue
     if (this.state.startNode === null || this.state.endNode === null) {
       return;
     }
-    let g = new graph(
-      NUM_OF_ROWS,
-      NUM_OF_COLUMNS,
-      this.state.startNode,
-      this.state.endNode
-    );
-    let shortestPath = g.findShortestPath();
 
+    // create graph and find shortest path
+    let g = new graph(
+      this.state.grid,
+      this.state.startNode,
+      this.state.endNode,
+      NUM_OF_ROWS,
+      NUM_OF_COLUMNS
+    );
+    let shortestPath: NodeTuple[] = g.findShortestPath();
+
+    // keep track of when program is animating to prevent user from starting another search while a search is happening
+    this.setState({ isAnimating: true });
+    setTimeout(() => {
+      this.setState({ isAnimating: false });
+    }, 20 * shortestPath.length);
+
+    // FOR each frame in shortestPath, make a call to delayAnimation
     for (let i = 0; i < shortestPath.length; i++) {
-      let node = JSON.parse(shortestPath[i]);
+      let node: NodeTuple = shortestPath[i];
       delayAnimation(node, i);
     }
 
     function delayAnimation(nodeTuple: NodeTuple, i: number) {
       setTimeout(() => {
         that.setState({ grid: updateVisitedPropertyOfNode(nodeTuple, that) });
-      }, 10 * i);
+      }, 20 * i);
     }
 
     function updateVisitedPropertyOfNode(
@@ -122,6 +142,17 @@ class PathVisualizer extends React.Component<any, State> {
     }
   }
 
+  resetBoard(e: React.MouseEvent) {
+    let newGrid: Node[][] = generateGrid(NUM_OF_ROWS, NUM_OF_COLUMNS);
+
+    this.setState({
+      grid: newGrid,
+      startNode: null,
+      endNode: null,
+      isAnimating: false,
+    });
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -135,13 +166,21 @@ class PathVisualizer extends React.Component<any, State> {
                 className="algorithms-dropdown"
               />
             </div>
-            <button
+            <Button
+              disabled={this.state.isAnimating ? true : false}
               onClick={(e: React.MouseEvent) =>
                 this.animateShortestPath.bind(this, e)()
               }
             >
               Start Search
-            </button>
+            </Button>
+            <Button
+              onClick={(e: React.MouseEvent) => {
+                this.resetBoard.bind(this, e)();
+              }}
+            >
+              Reset Board
+            </Button>
           </div>
         </div>
         <div className="grid-container">
@@ -177,16 +216,18 @@ class PathVisualizer extends React.Component<any, State> {
   }
 }
 
-export interface Node {
+interface Node {
   row: number;
   column: number;
   isStart: boolean;
   isEnd: boolean;
   visited: boolean;
   hover: boolean;
+  distanceFromStart: number;
+  previous: Node | null;
 }
 
-export class Node {
+class Node {
   constructor(row: number, column: number) {
     this.row = row;
     this.column = column;
@@ -194,10 +235,12 @@ export class Node {
     this.isEnd = false;
     this.visited = false;
     this.hover = false;
+    this.distanceFromStart = Infinity;
+    this.previous = null;
   }
 }
 
-export function generateGrid(numRows: number, numColumns: number) {
+function generateGrid(numRows: number, numColumns: number) {
   let grid: Node[][] = [];
   for (let i = 1; i <= numRows; i++) {
     grid[i] = [];
@@ -206,21 +249,6 @@ export function generateGrid(numRows: number, numColumns: number) {
     }
   }
   return grid;
-}
-
-export interface AdjacencyListNode {
-  [nodeLocation: string]: Node;
-}
-
-export function transformGridToAdjList(grid: Node[][]) {
-  let adjList: AdjacencyListNode = {};
-  grid.forEach((row) => {
-    row.forEach((node) => {
-      let nodeLocation = JSON.stringify([node.row, node.column]);
-      adjList[nodeLocation] = node;
-    });
-  });
-  return adjList;
 }
 
 interface AlgorithmOptions {

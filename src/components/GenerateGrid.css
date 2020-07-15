@@ -61,17 +61,17 @@ button {
 }
 
 .start-node {
-  background-color: blue;
+  background-color: var(--navy-blue);
 }
 
 .end-node {
-  background-color: green;
+  background-color: var(--navy-blue);
 }
 
 .visited {
-  background-color: gray;
+  background-color: yellow;
 }
 
 .hover {
-  background-color: lightgray;
+  background-color: lightblue;
 }
