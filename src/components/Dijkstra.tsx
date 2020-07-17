@@ -6,6 +6,7 @@ interface graph {
   grid: Node[][];
   numRows: number;
   numColumns: number;
+  gridFrames: Node[][][];
 }
 
 class graph {
@@ -21,6 +22,7 @@ class graph {
     this.grid = grid;
     this.numRows = numRows;
     this.numColumns = numColumns;
+    this.gridFrames = [];
   }
 
   positionIsValid(position: number) {
@@ -101,7 +103,18 @@ class graph {
       return false;
     }
   }
-  findShortestPath(): Node[] {
+  endNodeNotVisited(unvisitedNodes: Node[]) {
+    for (let i = 0; i < unvisitedNodes.length; i++) {
+      if (
+        unvisitedNodes[i].row === this.endNode.row &&
+        unvisitedNodes[i].column === this.endNode.column
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+  findShortestPath(): [Node[], Node[][][]] {
     // WHILE there is an unvisited node
     // get closestNode from start (call it 'current')
     // look up current's neighbours
@@ -112,20 +125,16 @@ class graph {
     // update previous
     // mark current as visited
     let unvisitedNodes: Node[] = this.findUnvisitedNodes();
-    var gridFrames: Node[][][] = [];
-    let gridFrame: Node[][] = [];
-
-    while (unvisitedNodes.length !== 0) {
+    while (
+      unvisitedNodes.length !== 0 &&
+      this.endNodeNotVisited(unvisitedNodes)
+    ) {
       let current: Node = this.findClosestUnvisitedNode(unvisitedNodes);
       let currentNeighbours: Node[] = this.findNeighbours(
         current.row,
         current.column
       );
 
-      // FOR each neighbour
-      //  if the distance from start < known distance update the distance
-      //  keep a pointer to the previous node
-      //  update the neighbourVisited property of the neighbour
       currentNeighbours.forEach((neighbour) => {
         if (!this.isNeighbourVisited(neighbour)) {
           let distanceToNeighbour: number = current.distanceFromStart + 1;
@@ -135,7 +144,6 @@ class graph {
               neighbour.column
             ].distanceFromStart = distanceToNeighbour;
             this.grid[neighbour.row][neighbour.column].previous = current;
-            this.grid[neighbour.row][neighbour.column].neighbourVisited = true;
           }
         }
       });
@@ -151,22 +159,11 @@ class graph {
       });
 
       // mark current as visited in grid
-      this.grid = this.grid.map((row) => {
-        return row.map((node) => {
-          if (node.row === current.row && node.column === current.column) {
-            return {
-              ...node,
-              visited: true,
-            };
-          } else {
-            return node;
-          }
-        });
-      });
+      this.markNodeAsVisited(current.row, current.column);
 
-      // push the state of a single 'frame' of the grid onto the gridFrames
-      gridFrame = this.grid.slice();
-      gridFrames.push(gridFrame);
+      // store current grid frame
+      let gridFrame = this.grid.slice();
+      this.gridFrames.push(gridFrame);
     }
 
     let startRow: number = this.startNode.row,
@@ -189,7 +186,7 @@ class graph {
         }
       }
     }
-    return shortestPath;
+    return [shortestPath, this.gridFrames.slice()];
   }
 }
 

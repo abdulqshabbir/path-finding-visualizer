@@ -1,9 +1,9 @@
 :root {
-  --NUM_OF_ROWS: 20;
-  --NUM_OF_COLUMNS: 20;
+  --NUM_OF_ROWS: 15;
+  --NUM_OF_COLUMNS: 15;
   --navy-blue: #34495e;
-  --turquoise: #1abc9c;
   --light-blue: #2196f3;
+  --default-blue: rgba(255, 255, 255, 0.8);
 }
 
 .menu-container {
@@ -50,17 +50,16 @@ div.menu.transition {
   display: grid;
   grid-template-columns: repeat(var(--NUM_OF_COLUMNS), 1fr);
   grid-template-rows: repeat(var(--NUM_OF_ROWS), 1fr);
-  background-color: var(--light-blue);
   width: 1000px;
   height: 1000px;
   grid-gap: 1px;
 }
 .node {
   display: flex;
+  box-sizing: border-box;
   align-items: center;
   flex-wrap: nowrap;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.8);
   padding: 20px;
   font-size: 30px;
@@ -74,12 +73,32 @@ div.menu.transition {
   background-color: var(--navy-blue);
 }
 
-.visited {
-  background-color: yellow;
+.shortest-path-node {
+  background-color: pink;
+  animation: shortest-path-animation 0.3s ease-in-out;
 }
 
-.neighbour-visited {
-  background-color: pink;
+@keyframes shortest-path-animation {
+  from {
+    background-color: var(--navy-blue);
+  }
+  to {
+    background-color: pink;
+  }
+}
+
+.visited-node {
+  background-color: var(--navy-blue);
+  animation: visited-animation 0.3s ease-in-out;
+}
+
+@keyframes visited-animation {
+  from {
+    background-color: white;
+  }
+  to {
+    background-color: var(--navy-blue);
+  }
 }
 
 .hover {

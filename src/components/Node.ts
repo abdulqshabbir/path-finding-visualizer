@@ -4,7 +4,7 @@ export interface Node {
     isStart: boolean;
     isEnd: boolean;
     visited: boolean;
-    neighbourVisited: boolean;
+    isInShortestPath: boolean;
     hover: boolean;
     distanceFromStart: number;
     previous: Node | null
@@ -17,7 +17,7 @@ export class Node {
         this.isStart = false;
         this.isEnd = false;
         this.visited = false;
-        this.neighbourVisited = false;
+        this.isInShortestPath = false;
         this.hover = false;
         this.distanceFromStart = Infinity;
         this.previous = null;

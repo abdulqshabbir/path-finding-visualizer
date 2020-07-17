@@ -4,8 +4,10 @@ import graph from "./Dijkstra";
 import { Dropdown, Button } from "semantic-ui-react";
 import { Node, NodeTuple } from "./Node";
 
-export const NUM_OF_ROWS: number = 20;
-export const NUM_OF_COLUMNS: number = 20;
+export const NUM_OF_ROWS: number = 15;
+export const NUM_OF_COLUMNS: number = 15;
+const TIME_BETWEEN_VISITED_FRAMES = 100;
+const TIME_BETWEEN_SHORTEST_PATH_FRAMES = 100;
 
 interface State {
   grid: Node[][];
@@ -24,7 +26,6 @@ class PathVisualizer extends React.Component<any, State> {
       inProgress: false,
     };
   }
-
   handleClick(e: React.MouseEvent, row: number, column: number) {
     let updatedGrid = this.state.grid.slice();
     // if start node is not yet selected, select it
@@ -70,15 +71,77 @@ class PathVisualizer extends React.Component<any, State> {
       });
     }
   }
-
   toggleHover(e: React.MouseEvent, row: number, column: number) {
+    // note: turn off hover effect if animation is in progress
+    // note: do not apply hover effect to start and end node when they have been selected
     if (!this.state.inProgress) {
       let updatedState: Node[][] = this.state.grid.slice();
       updatedState[row][column].hover = !updatedState[row][column].hover;
       this.setState({ grid: updatedState });
     }
   }
-
+  visitNodesAnimation(gridFrames: Node[][][], that: PathVisualizer) {
+    // FOR each gridFrame make a call to animate nodeVisitedAnimation
+    for (let i = 0; i < gridFrames.length; i++) {
+      let frame: Node[][] = gridFrames[i];
+      nodeVisitedAnimation(frame, i);
+    }
+    function nodeVisitedAnimation(frame: Node[][], i: number) {
+      setTimeout(() => {
+        that.setState({ grid: frame });
+      }, i * TIME_BETWEEN_VISITED_FRAMES);
+    }
+  }
+  shortestPathAnimation(
+    shortestPath: Node[],
+    gridFrames: Node[][][],
+    that: PathVisualizer
+  ) {
+    // FOR each node in shortestPath, make a call to shortestPathAnimation
+    for (let i = 0; i < shortestPath.length; i++) {
+      let node: Node = shortestPath[i];
+      shortestPathAnimation(node, i);
+    }
+    function shortestPathAnimation(node: Node, i: number) {
+      setTimeout(() => {
+        that.setState({
+          grid: that.markNodeWithinShortestPath(node.row, node.column),
+        });
+      }, TIME_BETWEEN_VISITED_FRAMES * gridFrames.length + TIME_BETWEEN_SHORTEST_PATH_FRAMES * i);
+    }
+  }
+  markNodeWithinShortestPath(nodeRow: number, nodeColumn: number) {
+    let updatedGrid = this.state.grid.slice().map((row) =>
+      row.map((node) => {
+        if (node.row === nodeRow && node.column === nodeColumn) {
+          return {
+            ...node,
+            visited: false,
+            isInShortestPath: true,
+          };
+        } else {
+          return node;
+        }
+      })
+    );
+    return updatedGrid;
+  }
+  updateVisitedPropertyOfNode(node: NodeTuple, that: PathVisualizer) {
+    let [nodeRow, nodeColumn]: [number, number] = node;
+    let updatedGrid: Node[][] = that.state.grid.slice();
+    return updatedGrid.map((row) =>
+      row.map((node) => {
+        if (node.row === nodeRow && node.column === nodeColumn) {
+          return {
+            ...node,
+            visited: !node.visited,
+          };
+        } else {
+          return node;
+        }
+      })
+    );
+  }
   animateShortestPath(e: React.MouseEvent) {
     // use 'that' to reference the PathVisualizer class from within setTimeout call
     let that = this;
@@ -87,7 +150,6 @@ class PathVisualizer extends React.Component<any, State> {
     if (this.state.startNode === null || this.state.endNode === null) {
       return;
     }
-
     // create graph and find shortest path
     let g = new graph(
       this.state.grid,
@@ -97,43 +159,17 @@ class PathVisualizer extends React.Component<any, State> {
       NUM_OF_COLUMNS
     );
 
-    // keep track of when program is animating to prevent user from starting another search while a search is happening
+    let shortestPath: Node[] = g.findShortestPath()[0];
+    let gridFrames: Node[][][] = g.findShortestPath()[1];
+
+    // keep track of when program is inProgress to prevent user from starting another search while a search is happening
     this.setState({ inProgress: true });
 
-    var shortestPath: Node[] = g.findShortestPath();
-    // FOR each frame in shortestPath, make a call to delayAnimation
-    for (let i = 0; i < shortestPath.length; i++) {
-      let node: NodeTuple = [shortestPath[i].row, shortestPath[i].column];
-      delayShortestPathAnimation(node, i);
-    }
+    // this function will animate the process by which nodes are visited
+    this.visitNodesAnimation(gridFrames, that);
 
-    function delayShortestPathAnimation(nodeTuple: NodeTuple, i: number) {
-      setTimeout(() => {
-        that.setState({ grid: updateVisitedPropertyOfNode(nodeTuple, that) });
-      }, 20 * i);
-    }
-
-    function updateVisitedPropertyOfNode(
-      node: NodeTuple,
-      that: PathVisualizer
-    ) {
-      let [nodeRow, nodeColumn]: [number, number] = node;
-      let updatedGrid: Node[][] = that.state.grid.slice();
-      return updatedGrid.map((row) =>
-        row.map((node) => {
-          if (node.row === nodeRow && node.column === nodeColumn) {
-            return {
-              ...node,
-              visited: !node.visited,
-            };
-          } else {
-            return node;
-          }
-        })
-      );
-    }
+    this.shortestPathAnimation(shortestPath, gridFrames, that);
   }
-
   resetBoard(e: React.MouseEvent) {
     let newGrid: Node[][] = generateGrid(NUM_OF_ROWS, NUM_OF_COLUMNS);
 
@@ -144,7 +180,6 @@ class PathVisualizer extends React.Component<any, State> {
       inProgress: false,
     });
   }
-
   render() {
     return (
       <React.Fragment>
@@ -203,10 +238,11 @@ class PathVisualizer extends React.Component<any, State> {
                       this.toggleHover.bind(this, e, row, column)();
                     }}
                     className={`node 
-                  ${node.visited ? "visited" : null} 
+                  ${node.visited ? "visited-node" : null} 
                   ${node.hover ? "hover" : null}
                   ${node.isStart ? "start-node" : null}
                   ${node.isEnd ? "end-node" : null}
+                  ${node.isInShortestPath ? "shortest-path-node" : null}
                   `}
                   ></div>
                 );
