@@ -3,7 +3,7 @@
   --NUM_OF_COLUMNS: 15;
   --navy-blue: #34495e;
   --light-blue: #2196f3;
-  --default-blue: rgba(255, 255, 255, 0.8);
+  --default-blue: rgba(168, 224, 241, 0.8);
 }
 
 .menu-container {
@@ -17,7 +17,7 @@
 
 .menu {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr 1fr;
+  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
   justify-content: center;
   align-items: center;
   justify-items: center;
@@ -52,55 +52,56 @@ div.menu.transition {
   grid-template-rows: repeat(var(--NUM_OF_ROWS), 1fr);
   width: 1000px;
   height: 1000px;
-  grid-gap: 1px;
+  grid-gap: 2px;
 }
 .node {
   display: flex;
+  background-color: var(--default-blue);
   box-sizing: border-box;
   align-items: center;
   flex-wrap: nowrap;
   justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.8);
-  padding: 20px;
-  font-size: 30px;
+  border: 0px;
 }
-
 .start-node {
   background-color: var(--navy-blue);
 }
-
 .end-node {
   background-color: var(--navy-blue);
 }
-
-.shortest-path-node {
-  background-color: pink;
-  animation: shortest-path-animation 0.3s ease-in-out;
+.visited-node {
+  background-color: var(--navy-blue);
+  width: 100%;
+  height: 100%;
+  animation-name: visited-animation;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
 }
-
+@keyframes visited-animation {
+  from {
+    border-radius: 50%;
+    background-color: var(--default-blue);
+    transform: scale(0);
+  }
+  to {
+    border-radius: 0%;
+    background-color: var(--navy-blue);
+    transform: scale(1);
+  }
+}
+.shortest-path-node {
+  background-color: yellow;
+  animation: shortest-path-animation 0.1s ease-in-out;
+}
 @keyframes shortest-path-animation {
   from {
     background-color: var(--navy-blue);
   }
   to {
-    background-color: pink;
+    background-color: yellow;
   }
 }
-
-.visited-node {
-  background-color: var(--navy-blue);
-  animation: visited-animation 0.3s ease-in-out;
-}
-
-@keyframes visited-animation {
-  from {
-    background-color: white;
-  }
-  to {
-    background-color: var(--navy-blue);
-  }
-}
-
 .hover {
-  background-color: lightblue;
+  background-color: var(--light-blue);
 }

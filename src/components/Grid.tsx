@@ -6,14 +6,13 @@ import { Node, NodeTuple } from "./Node";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
-const TIME_BETWEEN_VISITED_FRAMES = 100;
-const TIME_BETWEEN_SHORTEST_PATH_FRAMES = 100;
 
 interface State {
   grid: Node[][];
   startNode: Node | null;
   endNode: Node | null;
   inProgress: boolean;
+  timeBetweenAnimationFrames: number;
 }
 
 class PathVisualizer extends React.Component<any, State> {
@@ -24,6 +23,7 @@ class PathVisualizer extends React.Component<any, State> {
       startNode: null,
       endNode: null,
       inProgress: false,
+      timeBetweenAnimationFrames: 40,
     };
   }
   handleClick(e: React.MouseEvent, row: number, column: number) {
@@ -89,7 +89,7 @@ class PathVisualizer extends React.Component<any, State> {
     function nodeVisitedAnimation(frame: Node[][], i: number) {
       setTimeout(() => {
         that.setState({ grid: frame });
-      }, i * TIME_BETWEEN_VISITED_FRAMES);
+      }, i * that.state.timeBetweenAnimationFrames);
     }
   }
   shortestPathAnimation(
@@ -107,7 +107,7 @@ class PathVisualizer extends React.Component<any, State> {
         that.setState({
           grid: that.markNodeWithinShortestPath(node.row, node.column),
         });
-      }, TIME_BETWEEN_VISITED_FRAMES * gridFrames.length + TIME_BETWEEN_SHORTEST_PATH_FRAMES * i);
+      }, that.state.timeBetweenAnimationFrames * gridFrames.length + that.state.timeBetweenAnimationFrames * i);
     }
   }
   markNodeWithinShortestPath(nodeRow: number, nodeColumn: number) {
@@ -180,6 +180,16 @@ class PathVisualizer extends React.Component<any, State> {
       inProgress: false,
     });
   }
+  handleDropdown(e: any, { value }: any) {
+    let speedValue: "Medium" | "Fast" | "Slow" = value;
+    if (speedValue === "Slow") {
+      this.setState({ timeBetweenAnimationFrames: 400 });
+    } else if (speedValue === "Medium") {
+      this.setState({ timeBetweenAnimationFrames: 100 });
+    } else {
+      this.setState({ timeBetweenAnimationFrames: 20 });
+    }
+  }
   render() {
     return (
       <React.Fragment>
@@ -192,6 +202,15 @@ class PathVisualizer extends React.Component<any, State> {
                 placeholder="Select algorithm"
                 options={algorithmOptions}
                 className="algorithms"
+              />
+            </div>
+            <div className="dropdown-container">
+              <Dropdown
+                onChange={this.handleDropdown.bind(this)}
+                button
+                placeholder="Select Speed"
+                options={speedOptions}
+                className="speed"
               />
             </div>
             <Button
@@ -281,6 +300,30 @@ const algorithmOptions: Array<AlgorithmOptions> = [
     key: "A* search",
     text: "A* search",
     value: "A* search",
+  },
+];
+
+interface SpeedOptions {
+  key: string;
+  text: string;
+  value: string;
+}
+
+const speedOptions: SpeedOptions[] = [
+  {
+    key: "Fast",
+    text: "Fast",
+    value: "Fast",
+  },
+  {
+    key: "Medium",
+    text: "Medium",
+    value: "Medium",
+  },
+  {
+    key: "Slow",
+    text: "Slow",
+    value: "Slow",
   },
 ];
 

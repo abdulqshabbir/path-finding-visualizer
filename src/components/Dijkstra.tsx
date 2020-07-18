@@ -24,7 +24,6 @@ class graph {
     this.numColumns = numColumns;
     this.gridFrames = [];
   }
-
   positionIsValid(position: number) {
     // position is a row or column value for a particular node
     if (
@@ -39,17 +38,17 @@ class graph {
   }
   findNeighbours(row: number, column: number) {
     let neighbours: Node[] = [];
-    if (this.positionIsValid(row) && this.positionIsValid(column - 1)) {
-      neighbours.push(this.grid[row][column - 1]);
-    }
-    if (this.positionIsValid(row - 1) && this.positionIsValid(column)) {
-      neighbours.push(this.grid[row - 1][column]);
-    }
     if (this.positionIsValid(row + 1) && this.positionIsValid(column)) {
       neighbours.push(this.grid[row + 1][column]);
     }
     if (this.positionIsValid(row) && this.positionIsValid(column + 1)) {
       neighbours.push(this.grid[row][column + 1]);
+    }
+    if (this.positionIsValid(row - 1) && this.positionIsValid(column)) {
+      neighbours.push(this.grid[row - 1][column]);
+    }
+    if (this.positionIsValid(row) && this.positionIsValid(column - 1)) {
+      neighbours.push(this.grid[row][column - 1]);
     }
     return neighbours;
   }
@@ -82,10 +81,8 @@ class graph {
   findClosestUnvisitedNode(unvisitedNodes: Node[]): Node {
     let closestNode: Node = this.startNode;
     let minDistance: number = 1000000;
-
     // FOR each unvisited node, if distance from start is less than minDistance than update minDistance and closestNode
     unvisitedNodes.forEach((node) => {
-      // note that node is type NodeTuple and the first element stores the row of node and the second element store the column of the node
       let nodeDistance = node.distanceFromStart;
       if (nodeDistance < minDistance) {
         minDistance = nodeDistance;
