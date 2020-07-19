@@ -1,6 +1,6 @@
-import { Node } from "./Node";
+import { Node } from "./node";
 
-interface graph {
+export interface graph {
   startNode: Node;
   endNode: Node;
   grid: Node[][];
@@ -9,7 +9,7 @@ interface graph {
   gridFrames: Node[][][];
 }
 
-class graph {
+export class graph {
   constructor(
     grid: Node[][],
     startNode: Node,
@@ -111,7 +111,7 @@ class graph {
     }
     return false;
   }
-  findShortestPath(): [Node[], Node[][][]] {
+  dijsktra(): [Node[], Node[][][]] {
     // WHILE there is an unvisited node
     // get closestNode from start (call it 'current')
     // look up current's neighbours

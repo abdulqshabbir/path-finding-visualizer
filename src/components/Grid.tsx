@@ -1,8 +1,8 @@
 import React from "react";
 import "./Grid.css";
-import graph from "./Dijkstra";
+import graph from "../algorithms/graph";
 import { Dropdown, Button } from "semantic-ui-react";
-import { Node, NodeTuple } from "./Node";
+import { Node, NodeTuple } from "../algorithms/node";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
@@ -159,8 +159,8 @@ class PathVisualizer extends React.Component<any, State> {
       NUM_OF_COLUMNS
     );
 
-    let shortestPath: Node[] = g.findShortestPath()[0];
-    let gridFrames: Node[][][] = g.findShortestPath()[1];
+    let shortestPath: Node[] = g.dijsktra()[0];
+    let gridFrames: Node[][][] = g.dijsktra()[1];
 
     // keep track of when program is inProgress to prevent user from starting another search while a search is happening
     this.setState({ inProgress: true });
@@ -208,9 +208,9 @@ class PathVisualizer extends React.Component<any, State> {
               <Dropdown
                 onChange={this.handleDropdown.bind(this)}
                 button
-                placeholder="Select Speed"
+                placeholder="Animation Speed"
                 options={speedOptions}
-                className="speed"
+                className="animation-speed"
               />
             </div>
             <Button

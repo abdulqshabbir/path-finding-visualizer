@@ -25,16 +25,22 @@
 }
 
 div.ui.button.algorithms {
-  width: 250px;
+  width: 200px;
+  height: 40px;
+  padding: 10px;
+  text-align: center;
+}
+
+div.ui.button.animation-speed {
+  width: 200px;
   height: 40px;
   padding: 10px;
   text-align: center;
 }
 
 div.menu.transition {
-  width: 250px;
+  width: 200px;
 }
-
 .title {
   font-size: 2em;
   font-family: sans-serif;
