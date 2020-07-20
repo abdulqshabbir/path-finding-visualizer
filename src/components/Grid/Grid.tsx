@@ -1,10 +1,10 @@
 import React from "react";
 import "./Grid.css";
-// import graph from "../algorithms/graph";
-import { Dropdown, Button } from "semantic-ui-react";
-import { Node, NodeTuple } from "../algorithms/node";
-import { BFSgraph } from "../algorithms/bfs";
-
+import { Dropdown, Button, Grid } from "semantic-ui-react";
+import { Node, NodeTuple } from "../../algorithms/node";
+// import { BFSgraph } from "../algorithms/bfs";
+import { graph } from "../../algorithms/graph";
+import { GridNode } from "../GridNode/GridNode";
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
 
@@ -163,7 +163,7 @@ class PathVisualizer extends React.Component<any, State> {
     // let shortestPath: Node[] = g.dijsktra()[0];
     // let gridFrames: Node[][][] = g.dijsktra()[1];
 
-    let g = new BFSgraph(
+    let g = new graph(
       this.state.grid,
       this.state.startNode,
       this.state.endNode,
@@ -171,9 +171,8 @@ class PathVisualizer extends React.Component<any, State> {
       NUM_OF_COLUMNS
     );
 
-    debugger;
-    let shortestPath = g.BFS()[0];
-    let gridFrames = g.BFS()[1];
+    let shortestPath = g.dijsktra()[0];
+    let gridFrames = g.dijsktra()[1];
 
     // keep track of when program is inProgress to prevent user from starting another search while a search is happening
     this.setState({ inProgress: true });
@@ -265,27 +264,20 @@ class PathVisualizer extends React.Component<any, State> {
                   <i className="fa fa-arrow-right"></i>
                 ) : null;
                 return (
-                  <div
-                    onClick={(e: React.MouseEvent) =>
-                      this.handleClick.bind(this, e, row, column)()
+                  <GridNode
+                    node={node}
+                    target={target}
+                    arrow={arrow}
+                    handleMouseClick={(e: React.MouseEvent) =>
+                      this.handleClick(e, row, column)
                     }
-                    onMouseEnter={(e: React.MouseEvent) => {
-                      this.toggleHover.bind(this, e, row, column)();
+                    handleMouseEnter={(e: React.MouseEvent) =>
+                      this.toggleHover.bind(this, e, row, column)
+                    }
+                    handleMouseLeave={(e: React.MouseEvent) => {
+                      this.toggleHover.bind(this, e, row, column);
                     }}
-                    onMouseLeave={(e: React.MouseEvent) => {
-                      this.toggleHover.bind(this, e, row, column)();
-                    }}
-                    className={`node 
-                  ${node.visited ? "visited-node" : null} 
-                  ${node.hover ? "hover" : null}
-                  ${node.isStart ? "start-node" : null}
-                  ${node.isEnd ? "end-node" : null}
-                  ${node.isInShortestPath ? "shortest-path-node" : null}
-                  `}
-                  >
-                    {target}
-                    {arrow}
-                  </div>
+                  />
                 );
               });
             })}
