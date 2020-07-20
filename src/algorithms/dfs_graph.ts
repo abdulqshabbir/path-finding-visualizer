@@ -1,6 +1,6 @@
 import { Node } from './node'
 import { Stack } from './stack'
-export interface BFSgraph {
+export interface DFSgraph {
     grid: Node[][];
     startNode: Node;
     endNode: Node;
@@ -8,7 +8,7 @@ export interface BFSgraph {
     numColumns: number;
 }
 
-export class BFSgraph {
+export class DFSgraph {
     constructor(grid: Node[][], startNode: Node, endNode: Node, numRows: number, numColumns: number) {
         this.grid = grid;
         this.startNode = startNode;
@@ -77,7 +77,7 @@ export class BFSgraph {
         }
         return false;
     }
-    BFS(): [Node[], Node[][][]] {
+    depthFirstSearch(): [Node[], Node[][][]] {
         let animationFrame: Node[][]
         let animationFrames: Node[][][] = []
         let path: Node[] = []

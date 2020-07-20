@@ -115,6 +115,6 @@ div.menu.transition {
     background-color: yellow;
   }
 }
-.hover {
-  background-color: var(--light-blue);
+.hover-node {
+  background-color: blue;
 }

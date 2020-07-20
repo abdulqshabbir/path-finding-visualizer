@@ -1,6 +1,6 @@
 import { Node } from "./node";
 
-export interface graph {
+export interface dijkstra_graph {
   startNode: Node;
   endNode: Node;
   grid: Node[][];
@@ -9,7 +9,7 @@ export interface graph {
   gridFrames: Node[][][];
 }
 
-export class graph {
+export class dijkstra_graph {
   constructor(
     grid: Node[][],
     startNode: Node,
@@ -187,4 +187,4 @@ export class graph {
   }
 }
 
-export default graph;
+export default dijkstra_graph;

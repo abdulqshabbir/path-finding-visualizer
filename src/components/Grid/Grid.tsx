@@ -1,10 +1,11 @@
 import React from "react";
 import "./Grid.css";
-import { Dropdown, Button, Grid } from "semantic-ui-react";
+import { Dropdown, Button } from "semantic-ui-react";
 import { Node, NodeTuple } from "../../algorithms/node";
-// import { BFSgraph } from "../algorithms/bfs";
-import { graph } from "../../algorithms/graph";
+import { DFSgraph } from "../../algorithms/dfs_graph";
+import { dijkstra_graph } from "../../algorithms/dijkstra_graph";
 import { GridNode } from "../GridNode/GridNode";
+
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
 
@@ -13,6 +14,7 @@ interface State {
   startNode: Node | null;
   endNode: Node | null;
   inProgress: boolean;
+  algorithm: "DFS" | "BFS" | "Dijkstra";
   timeBetweenAnimationFrames: number;
 }
 
@@ -25,6 +27,7 @@ class PathVisualizer extends React.Component<any, State> {
       endNode: null,
       inProgress: false,
       timeBetweenAnimationFrames: 40,
+      algorithm: "Dijkstra",
     };
   }
   handleClick(e: React.MouseEvent, row: number, column: number) {
@@ -81,19 +84,61 @@ class PathVisualizer extends React.Component<any, State> {
       this.setState({ grid: updatedState });
     }
   }
-  visitNodesAnimation(gridFrames: Node[][][], that: PathVisualizer) {
+  handleAllAnimations(e: React.MouseEvent) {
+    // use 'that' to reference the PathVisualizer class from within setTimeout call
+    let that = this;
+    // if startNode and endNode are not selected, do not continue
+    if (this.state.startNode === null || this.state.endNode === null) {
+      return;
+    }
+
+    let shortestPath: Node[];
+    let gridFrames: Node[][][];
+
+    if (this.state.algorithm === "Dijkstra") {
+      let g = new dijkstra_graph(
+        this.state.grid,
+        this.state.startNode,
+        this.state.endNode,
+        NUM_OF_ROWS,
+        NUM_OF_COLUMNS
+      );
+      shortestPath = g.dijsktra()[0];
+      gridFrames = g.dijsktra()[1];
+
+      // keep track of when program is inProgress to prevent user from starting another search while a search is happening
+      this.setState({ inProgress: true });
+      this.animateNodeVisit(gridFrames, that);
+      this.animateShortestPath(shortestPath, gridFrames, that);
+    } else if (this.state.algorithm === "DFS") {
+      let g = new DFSgraph(
+        this.state.grid,
+        this.state.startNode,
+        this.state.endNode,
+        NUM_OF_ROWS,
+        NUM_OF_COLUMNS
+      );
+      shortestPath = g.depthFirstSearch()[0];
+      gridFrames = g.depthFirstSearch()[1];
+      // keep track of when program is inProgress to prevent user from starting another search while a search is happening
+      this.setState({ inProgress: true });
+      this.animateNodeVisit(gridFrames, that);
+      this.animateShortestPath(shortestPath, gridFrames, that);
+    }
+  }
+  animateNodeVisit(gridFrames: Node[][][], that: PathVisualizer) {
     // FOR each gridFrame make a call to animate nodeVisitedAnimation
     for (let i = 0; i < gridFrames.length; i++) {
       let frame: Node[][] = gridFrames[i];
-      nodeVisitedAnimation(frame, i);
+      drawVisitedNode(frame, i);
     }
-    function nodeVisitedAnimation(frame: Node[][], i: number) {
+    function drawVisitedNode(frame: Node[][], i: number) {
       setTimeout(() => {
         that.setState({ grid: frame });
       }, i * that.state.timeBetweenAnimationFrames);
     }
   }
-  shortestPathAnimation(
+  animateShortestPath(
     shortestPath: Node[],
     gridFrames: Node[][][],
     that: PathVisualizer
@@ -101,17 +146,17 @@ class PathVisualizer extends React.Component<any, State> {
     // FOR each node in shortestPath, make a call to shortestPathAnimation
     for (let i = 0; i < shortestPath.length; i++) {
       let node: Node = shortestPath[i];
-      shortestPathAnimation(node, i);
+      drawShortestPath(node, i);
     }
-    function shortestPathAnimation(node: Node, i: number) {
+    function drawShortestPath(node: Node, i: number) {
       setTimeout(() => {
         that.setState({
-          grid: that.markNodeWithinShortestPath(node.row, node.column),
+          grid: that.markAsShortestPathNode(node.row, node.column),
         });
       }, that.state.timeBetweenAnimationFrames * gridFrames.length + that.state.timeBetweenAnimationFrames * i);
     }
   }
-  markNodeWithinShortestPath(nodeRow: number, nodeColumn: number) {
+  markAsShortestPathNode(nodeRow: number, nodeColumn: number) {
     let updatedGrid = this.state.grid.slice().map((row) =>
       row.map((node) => {
         if (node.row === nodeRow && node.column === nodeColumn) {
@@ -143,45 +188,6 @@ class PathVisualizer extends React.Component<any, State> {
       })
     );
   }
-  animateShortestPath(e: React.MouseEvent) {
-    // use 'that' to reference the PathVisualizer class from within setTimeout call
-    let that = this;
-
-    // if startNode and endNode are not selected, do not continue
-    if (this.state.startNode === null || this.state.endNode === null) {
-      return;
-    }
-    // // create graph and find shortest path
-    // let g = new graph(
-    //   this.state.grid,
-    //   this.state.startNode,
-    //   this.state.endNode,
-    //   NUM_OF_ROWS,
-    //   NUM_OF_COLUMNS
-    // );
-
-    // let shortestPath: Node[] = g.dijsktra()[0];
-    // let gridFrames: Node[][][] = g.dijsktra()[1];
-
-    let g = new graph(
-      this.state.grid,
-      this.state.startNode,
-      this.state.endNode,
-      NUM_OF_ROWS,
-      NUM_OF_COLUMNS
-    );
-
-    let shortestPath = g.dijsktra()[0];
-    let gridFrames = g.dijsktra()[1];
-
-    // keep track of when program is inProgress to prevent user from starting another search while a search is happening
-    this.setState({ inProgress: true });
-
-    // this function will animate the process by which nodes are visited
-    this.visitNodesAnimation(gridFrames, that);
-
-    this.shortestPathAnimation(shortestPath, gridFrames, that);
-  }
   resetBoard(e: React.MouseEvent) {
     let newGrid: Node[][] = generateGrid(NUM_OF_ROWS, NUM_OF_COLUMNS);
 
@@ -192,7 +198,7 @@ class PathVisualizer extends React.Component<any, State> {
       inProgress: false,
     });
   }
-  handleDropdown(e: any, { value }: any) {
+  handleAnimationSpeed(e: any, { value }: any) {
     let speedValue: "Medium" | "Fast" | "Slow" = value;
     if (speedValue === "Slow") {
       this.setState({ timeBetweenAnimationFrames: 400 });
@@ -201,6 +207,10 @@ class PathVisualizer extends React.Component<any, State> {
     } else {
       this.setState({ timeBetweenAnimationFrames: 20 });
     }
+  }
+  handleAlgorithmSelection(e: any, { value }: any) {
+    let algorithm: "DFS" | "BFS" | "Dijkstra" = value;
+    this.setState({ algorithm: algorithm });
   }
   render() {
     return (
@@ -211,6 +221,7 @@ class PathVisualizer extends React.Component<any, State> {
             <div className="dropdown-container">
               <Dropdown
                 button
+                onChange={this.handleAlgorithmSelection.bind(this)}
                 placeholder="Select algorithm"
                 options={algorithmOptions}
                 className="algorithms"
@@ -218,7 +229,7 @@ class PathVisualizer extends React.Component<any, State> {
             </div>
             <div className="dropdown-container">
               <Dropdown
-                onChange={this.handleDropdown.bind(this)}
+                onChange={this.handleAnimationSpeed.bind(this)}
                 button
                 placeholder="Animation Speed"
                 options={speedOptions}
@@ -234,7 +245,7 @@ class PathVisualizer extends React.Component<any, State> {
                   : true
               }
               onClick={(e: React.MouseEvent) =>
-                this.animateShortestPath.bind(this, e)()
+                this.handleAllAnimations.bind(this, e)()
               }
             >
               Start Search
@@ -255,27 +266,17 @@ class PathVisualizer extends React.Component<any, State> {
           >
             {this.state.grid.map((row) => {
               return row.map((node) => {
-                let row = node.row;
-                let column = node.column;
-                let target = node.isEnd ? (
-                  <i className="fa fa-bullseye"></i>
-                ) : null;
-                let arrow = node.isStart ? (
-                  <i className="fa fa-arrow-right"></i>
-                ) : null;
                 return (
                   <GridNode
                     node={node}
-                    target={target}
-                    arrow={arrow}
                     handleMouseClick={(e: React.MouseEvent) =>
-                      this.handleClick(e, row, column)
+                      this.handleClick(e, node.row, node.column)
                     }
                     handleMouseEnter={(e: React.MouseEvent) =>
-                      this.toggleHover.bind(this, e, row, column)
+                      this.toggleHover.bind(this, e, node.row, node.column)
                     }
                     handleMouseLeave={(e: React.MouseEvent) => {
-                      this.toggleHover.bind(this, e, row, column);
+                      this.toggleHover.bind(this, e, node.row, node.column);
                     }}
                   />
                 );
@@ -306,14 +307,14 @@ interface AlgorithmOptions {
 
 const algorithmOptions: Array<AlgorithmOptions> = [
   {
-    key: "Dijkstra's algorithm",
-    text: "Dijkstra's algorithm",
-    value: "Dijkstra's algorithm",
+    key: "Dijkstra",
+    text: "Dijkstra",
+    value: "Dijkstra",
   },
   {
-    key: "A* search",
-    text: "A* search",
-    value: "A* search",
+    key: "DFS",
+    text: "DFS",
+    value: "DFS",
   },
 ];
 
