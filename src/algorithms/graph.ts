@@ -100,7 +100,7 @@ export class graph {
       return false;
     }
   }
-  endNodeNotVisited(unvisitedNodes: Node[]) {
+  endNodeUnvisited(unvisitedNodes: Node[]) {
     for (let i = 0; i < unvisitedNodes.length; i++) {
       if (
         unvisitedNodes[i].row === this.endNode.row &&
@@ -124,7 +124,7 @@ export class graph {
     let unvisitedNodes: Node[] = this.findUnvisitedNodes();
     while (
       unvisitedNodes.length !== 0 &&
-      this.endNodeNotVisited(unvisitedNodes)
+      this.endNodeUnvisited(unvisitedNodes)
     ) {
       let current: Node = this.findClosestUnvisitedNode(unvisitedNodes);
       let currentNeighbours: Node[] = this.findNeighbours(

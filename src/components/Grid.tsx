@@ -1,8 +1,9 @@
 import React from "react";
 import "./Grid.css";
-import graph from "../algorithms/graph";
+// import graph from "../algorithms/graph";
 import { Dropdown, Button } from "semantic-ui-react";
 import { Node, NodeTuple } from "../algorithms/node";
+import { BFSgraph } from "../algorithms/bfs";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
@@ -150,8 +151,19 @@ class PathVisualizer extends React.Component<any, State> {
     if (this.state.startNode === null || this.state.endNode === null) {
       return;
     }
-    // create graph and find shortest path
-    let g = new graph(
+    // // create graph and find shortest path
+    // let g = new graph(
+    //   this.state.grid,
+    //   this.state.startNode,
+    //   this.state.endNode,
+    //   NUM_OF_ROWS,
+    //   NUM_OF_COLUMNS
+    // );
+
+    // let shortestPath: Node[] = g.dijsktra()[0];
+    // let gridFrames: Node[][][] = g.dijsktra()[1];
+
+    let g = new BFSgraph(
       this.state.grid,
       this.state.startNode,
       this.state.endNode,
@@ -159,8 +171,9 @@ class PathVisualizer extends React.Component<any, State> {
       NUM_OF_COLUMNS
     );
 
-    let shortestPath: Node[] = g.dijsktra()[0];
-    let gridFrames: Node[][][] = g.dijsktra()[1];
+    debugger;
+    let shortestPath = g.BFS()[0];
+    let gridFrames = g.BFS()[1];
 
     // keep track of when program is inProgress to prevent user from starting another search while a search is happening
     this.setState({ inProgress: true });
@@ -245,6 +258,12 @@ class PathVisualizer extends React.Component<any, State> {
               return row.map((node) => {
                 let row = node.row;
                 let column = node.column;
+                let target = node.isEnd ? (
+                  <i className="fa fa-bullseye"></i>
+                ) : null;
+                let arrow = node.isStart ? (
+                  <i className="fa fa-arrow-right"></i>
+                ) : null;
                 return (
                   <div
                     onClick={(e: React.MouseEvent) =>
@@ -263,7 +282,10 @@ class PathVisualizer extends React.Component<any, State> {
                   ${node.isEnd ? "end-node" : null}
                   ${node.isInShortestPath ? "shortest-path-node" : null}
                   `}
-                  ></div>
+                  >
+                    {target}
+                    {arrow}
+                  </div>
                 );
               });
             })}

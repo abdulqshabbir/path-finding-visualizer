@@ -72,6 +72,13 @@ div.menu.transition {
 .start-node {
   background-color: var(--navy-blue);
 }
+.fa-bullseye {
+  font-size: 300%;
+}
+.fa-arrow-right {
+  font-size: 300%;
+}
+
 .end-node {
   background-color: var(--navy-blue);
 }

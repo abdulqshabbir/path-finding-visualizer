@@ -47,4 +47,29 @@ export class Stack {
         this.size--
         return poppedNode.value
     }
+    contains(node: Node): boolean {
+        if (this.size === 0) {
+            return false
+        } else if (this.size === 1) {
+            if (node.row === this.first?.value.row && node.column === this.first?.value.column) {
+                return true
+            } else {
+                return false
+            }
+        } else if (this.size > 1 && this.first !== null) {
+            let current = this.first
+            while (current.next !== null) {
+                if (current.value.row === node.row && current.value.column === node.column) {
+                    return true
+                }
+                current = current.next
+            }
+            if (current.value.row === node.row && current.value.column === node.column) {
+                return true
+            }
+            return false
+        } else {
+            return false
+        }
+    }
 }
