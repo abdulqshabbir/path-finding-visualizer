@@ -99,7 +99,6 @@ export class BFSgraph {
         this.grid[child.row][child.column] = child
     }
     reconstructPath(): Node[] {
-        debugger;
         let path: Node[] = []
         // NOTE: we must use the grid here since the 'endNode' prev property does not get updated
         let current: Node = this.grid[this.endNode.row][this.endNode.column]
