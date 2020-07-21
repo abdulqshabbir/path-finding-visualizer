@@ -69,8 +69,8 @@ div.menu.transition {
   justify-content: center;
   border: 0px;
 }
-.start-node {
-  background-color: var(--navy-blue);
+.node.start-node {
+  background-color: blueviolet;
 }
 .fa-bullseye {
   font-size: 300%;
@@ -79,8 +79,8 @@ div.menu.transition {
   font-size: 300%;
 }
 
-.end-node {
-  background-color: var(--navy-blue);
+.node.end-node {
+  background-color: blueviolet;
 }
 .visited-node {
   background-color: var(--navy-blue);
@@ -103,7 +103,7 @@ div.menu.transition {
     transform: scale(1);
   }
 }
-.shortest-path-node {
+.node.shortest-path-node {
   background-color: yellow;
   animation: shortest-path-animation 0.1s ease-in-out;
 }
@@ -116,5 +116,5 @@ div.menu.transition {
   }
 }
 .hover-node {
-  background-color: blue;
+  background-color: skyblue;
 }

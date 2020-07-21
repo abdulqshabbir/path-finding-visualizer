@@ -4,7 +4,6 @@ import { Dropdown, Button } from "semantic-ui-react";
 import { Node, NodeTuple } from "../../algorithms/node";
 import { DFSgraph } from "../../algorithms/dfs_graph";
 import { dijkstra_graph } from "../../algorithms/dijkstra_graph";
-import { GridNode } from "../GridNode/GridNode";
 import { BFSgraph } from "../../algorithms/bfs_graph";
 
 export const NUM_OF_ROWS: number = 15;
@@ -14,6 +13,7 @@ interface State {
   grid: Node[][];
   startNode: Node | null;
   endNode: Node | null;
+  currentHoverNode: Node | null;
   inProgress: boolean;
   algorithm: "DFS" | "BFS" | "Dijkstra";
   timeBetweenAnimationFrames: number;
@@ -26,6 +26,7 @@ class PathVisualizer extends React.Component<any, State> {
       grid: generateGrid(NUM_OF_ROWS, NUM_OF_COLUMNS),
       startNode: null,
       endNode: null,
+      currentHoverNode: null,
       inProgress: false,
       timeBetweenAnimationFrames: 40,
       algorithm: "Dijkstra",
@@ -83,6 +84,11 @@ class PathVisualizer extends React.Component<any, State> {
       let updatedState: Node[][] = this.state.grid.slice();
       updatedState[row][column].hover = !updatedState[row][column].hover;
       this.setState({ grid: updatedState });
+    }
+  }
+  toggleWall(e: React.KeyboardEvent) {
+    if (e.key === "w" || e.key === "W") {
+      console.log("w pressed!");
     }
   }
   handleAllAnimations(e: React.MouseEvent) {
@@ -279,19 +285,36 @@ class PathVisualizer extends React.Component<any, State> {
           >
             {this.state.grid.map((row) => {
               return row.map((node) => {
+                let target = node.isEnd ? (
+                  <i className="fa fa-bullseye"></i>
+                ) : null;
+                let arrow = node.isStart ? (
+                  <i className="fa fa-arrow-right"></i>
+                ) : null;
                 return (
-                  <GridNode
-                    node={node}
-                    handleMouseClick={(e: React.MouseEvent) =>
-                      this.handleClick(e, node.row, node.column)
+                  <div
+                    onClick={(e) =>
+                      this.handleClick.bind(this, e, node.row, node.column)()
                     }
-                    handleMouseEnter={(e: React.MouseEvent) =>
-                      this.toggleHover.bind(this, e, node.row, node.column)
+                    onMouseEnter={(e) =>
+                      this.toggleHover.bind(this, e, node.row, node.column)()
                     }
-                    handleMouseLeave={(e: React.MouseEvent) => {
-                      this.toggleHover.bind(this, e, node.row, node.column);
-                    }}
-                  />
+                    onMouseLeave={(e) =>
+                      this.toggleHover.bind(this, e, node.row, node.column)()
+                    }
+                    onKeyPress={(e) => this.toggleWall.bind(this, e)()}
+                    tabIndex={node.row}
+                    className={`node
+                          ${node.visited ? "visited-node" : null}
+                          ${node.hover ? "hover-node" : null}
+                          ${node.isStart ? "start-node" : null}
+                          ${node.isEnd ? "end-node" : null}
+                          ${node.isInShortestPath ? "shortest-path-node" : null}
+                    `}
+                  >
+                    {target}
+                    {arrow}
+                  </div>
                 );
               });
             })}
