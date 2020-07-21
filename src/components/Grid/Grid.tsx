@@ -5,6 +5,7 @@ import { Node, NodeTuple } from "../../algorithms/node";
 import { DFSgraph } from "../../algorithms/dfs_graph";
 import { dijkstra_graph } from "../../algorithms/dijkstra_graph";
 import { GridNode } from "../GridNode/GridNode";
+import { Queue } from "../../algorithms/queue";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
@@ -210,6 +211,20 @@ class PathVisualizer extends React.Component<any, State> {
   }
   handleAlgorithmSelection(e: any, { value }: any) {
     let algorithm: "DFS" | "BFS" | "Dijkstra" = value;
+    let q = new Queue();
+    display(q.enqueue(new Node(1, 1)));
+    display(q.enqueue(new Node(2, 2)));
+    display(q.enqueue(new Node(3, 3)));
+
+    display(q.dequeue());
+    display(q.dequeue());
+    display(q.dequeue());
+    display(q.dequeue());
+
+    function display(value: any) {
+      console.log(value);
+    }
+
     this.setState({ algorithm: algorithm });
   }
   render() {
