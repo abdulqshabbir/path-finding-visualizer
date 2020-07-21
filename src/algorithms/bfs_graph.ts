@@ -3,6 +3,7 @@ import { Queue } from './queue'
 
 export interface BFSgraph {
     grid: Node[][];
+    gridFrames: Node[][][];
     startNode: Node;
     endNode: Node;
     numRows: number;
@@ -12,6 +13,7 @@ export interface BFSgraph {
 export class BFSgraph {
     constructor(grid: Node[][], startNode: Node, endNode: Node, numRows: number, numColumns: number) {
         this.grid = grid;
+        this.gridFrames = [];
         this.startNode = startNode;
         this.endNode = endNode;
         this.numRows = numRows;
@@ -110,7 +112,6 @@ export class BFSgraph {
     }
     breadthFirstSeach(): [Node[], Node[][][]] {
         let animationFrame: Node[][]
-        let animationFrames: Node[][][] = []
         let frontier = new Queue()
         let current: Node | null
         frontier.enqueue(this.startNode)
@@ -124,7 +125,7 @@ export class BFSgraph {
                     this.markVisited(current.row, current.column)
                     // create animation frame
                     animationFrame = this.grid.slice()
-                    animationFrames.push(animationFrame)
+                    this.gridFrames.push(animationFrame)
                     // break out of loop and reconstruct path to get to end node
                     break;
                 }
@@ -145,10 +146,10 @@ export class BFSgraph {
                 this.markVisited(current.row, current.column)
                 // animation frames created to visualize BFS
                 animationFrame = this.grid.slice()
-                animationFrames.push(animationFrame)
+                this.gridFrames.push(animationFrame)
             }
         }
         let path: Node[] = this.reconstructPath()
-        return [path, animationFrames]
+        return [path, this.gridFrames]
     }
 }
