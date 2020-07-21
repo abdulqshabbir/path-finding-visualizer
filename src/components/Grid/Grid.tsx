@@ -5,7 +5,7 @@ import { Node, NodeTuple } from "../../algorithms/node";
 import { DFSgraph } from "../../algorithms/dfs_graph";
 import { dijkstra_graph } from "../../algorithms/dijkstra_graph";
 import { GridNode } from "../GridNode/GridNode";
-import { Queue } from "../../algorithms/queue";
+import { BFSgraph } from "../../algorithms/bfs_graph";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
@@ -93,39 +93,52 @@ class PathVisualizer extends React.Component<any, State> {
       return;
     }
 
-    let shortestPath: Node[];
-    let gridFrames: Node[][][];
+    // by default, a DFS search is performed
+    let g: DFSgraph | BFSgraph | dijkstra_graph = new BFSgraph(
+      this.state.grid,
+      this.state.startNode,
+      this.state.endNode,
+      NUM_OF_ROWS,
+      NUM_OF_COLUMNS
+    );
+    let path: Node[] = g.breadthFirstSeach()[0];
+    let gridFrames: Node[][][] = g.breadthFirstSeach()[1];
 
     if (this.state.algorithm === "Dijkstra") {
-      let g = new dijkstra_graph(
+      g = new dijkstra_graph(
         this.state.grid,
         this.state.startNode,
         this.state.endNode,
         NUM_OF_ROWS,
         NUM_OF_COLUMNS
       );
-      shortestPath = g.dijsktra()[0];
+      path = g.dijsktra()[0];
       gridFrames = g.dijsktra()[1];
-
-      // keep track of when program is inProgress to prevent user from starting another search while a search is happening
-      this.setState({ inProgress: true });
-      this.animateNodeVisit(gridFrames, that);
-      this.animateShortestPath(shortestPath, gridFrames, that);
     } else if (this.state.algorithm === "DFS") {
-      let g = new DFSgraph(
+      g = new DFSgraph(
         this.state.grid,
         this.state.startNode,
         this.state.endNode,
         NUM_OF_ROWS,
         NUM_OF_COLUMNS
       );
-      shortestPath = g.depthFirstSearch()[0];
+      path = g.depthFirstSearch()[0];
       gridFrames = g.depthFirstSearch()[1];
-      // keep track of when program is inProgress to prevent user from starting another search while a search is happening
-      this.setState({ inProgress: true });
-      this.animateNodeVisit(gridFrames, that);
-      this.animateShortestPath(shortestPath, gridFrames, that);
+    } else if (this.state.algorithm === "BFS") {
+      g = new BFSgraph(
+        this.state.grid,
+        this.state.startNode,
+        this.state.endNode,
+        NUM_OF_ROWS,
+        NUM_OF_COLUMNS
+      );
+      path = g.breadthFirstSeach()[0];
+      gridFrames = g.breadthFirstSeach()[1];
     }
+    // keep track of when program is inProgress to prevent user from starting another search while a search is happening
+    this.setState({ inProgress: true });
+    this.animateNodeVisit(gridFrames, that);
+    this.animateShortestPath(path, gridFrames, that);
   }
   animateNodeVisit(gridFrames: Node[][][], that: PathVisualizer) {
     // FOR each gridFrame make a call to animate nodeVisitedAnimation
@@ -210,22 +223,7 @@ class PathVisualizer extends React.Component<any, State> {
     }
   }
   handleAlgorithmSelection(e: any, { value }: any) {
-    let algorithm: "DFS" | "BFS" | "Dijkstra" = value;
-    let q = new Queue();
-    display(q.enqueue(new Node(1, 1)));
-    display(q.enqueue(new Node(2, 2)));
-    display(q.enqueue(new Node(3, 3)));
-
-    display(q.dequeue());
-    display(q.dequeue());
-    display(q.dequeue());
-    display(q.dequeue());
-
-    function display(value: any) {
-      console.log(value);
-    }
-
-    this.setState({ algorithm: algorithm });
+    this.setState({ algorithm: value });
   }
   render() {
     return (
@@ -330,6 +328,11 @@ const algorithmOptions: Array<AlgorithmOptions> = [
     key: "DFS",
     text: "DFS",
     value: "DFS",
+  },
+  {
+    key: "BFS",
+    text: "BFS",
+    value: "BFS",
   },
 ];
 

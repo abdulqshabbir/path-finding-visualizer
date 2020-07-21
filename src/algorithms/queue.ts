@@ -61,4 +61,31 @@ export class Queue {
             return null
         }
     }
+    contains(node: Node): boolean {
+        if (this.size === 0) {
+            return false
+        } else if (this.size === 1 && this.front !== null) {
+            if (node.row === this.front.value.row && node.column === this.front.value.column) {
+                return true
+            } else {
+                return false
+            }
+        }
+        // back -> Qn <-> Qn-1 <-> ...Q2 <-> Q1 <- front 
+        else if (this.size > 1 && this.front !== null) {
+            let current = this.front
+            while (current.previous !== null) {
+                if (current.value.row === node.row && current.value.column === node.column) {
+                    return true
+                }
+                current = current.previous
+            }
+            if (current.value.row === node.row && current.value.column === node.column) {
+                return true
+            }
+            return false
+        } else {
+            return false
+        }
+    }
 }
