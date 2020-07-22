@@ -9,6 +9,7 @@ export interface Node {
     distanceFromStart: number;
     previous: Node | null;
     isWall: boolean;
+    weight: number;
 }
 
 export class Node {
@@ -23,6 +24,7 @@ export class Node {
         this.distanceFromStart = Infinity;
         this.previous = null;
         this.isWall = false;
+        this.weight = 1
     }
 }
 

@@ -119,14 +119,16 @@ export class BFSgraph {
     breadthFirstSeach(): [Node[], Node[][][]] {
         let animationFrame: Node[][]
         let frontier = new Queue()
-        let current: Node | null
+        let pathExists: boolean = false
+
         frontier.enqueue(this.startNode)
         while (frontier.size > 0) {
-            current = frontier.dequeue()
+            let current = frontier.dequeue()
             // the queue returns a non-null node
             if (current !== null) {
                 // if end node reached
                 if (current.isEnd) {
+                    pathExists = true
                     // marks end node as visited in grid 
                     this.markVisited(current.row, current.column)
                     // create animation frame
@@ -146,7 +148,6 @@ export class BFSgraph {
                         this.markParent(neighbours[i], current)
                     }
                 }
-
                 // mark current node as visited in grid
                 this.markVisited(current.row, current.column)
                 // animation frames created to visualize BFS
@@ -154,6 +155,7 @@ export class BFSgraph {
                 this.gridFrames.push(animationFrame)
             }
         }
+        console.log('pathExists value: ', pathExists)
         let path: Node[] = this.reconstructPath()
         return [path, this.gridFrames]
     }
