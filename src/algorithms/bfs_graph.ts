@@ -136,7 +136,6 @@ export class BFSgraph {
                         // if neighbour NOT in frontier and is UNVISITED, enqueue neighbour
                         frontier.enqueue(neighbours[i])
                         // mark neighbour's parent with previous pointer to current to help reconstruct path
-                        debugger;
                         this.markParent(neighbours[i], current)
                     }
                 }

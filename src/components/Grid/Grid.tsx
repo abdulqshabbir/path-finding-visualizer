@@ -2,6 +2,8 @@ import React from "react";
 import "./Grid.css";
 import { Dropdown, Button } from "semantic-ui-react";
 import { Node, NodeTuple } from "../../algorithms/node";
+import { algorithmOptions, speedOptions } from "./helpers/Options";
+import { generateGrid } from "./helpers/generateGrid";
 import { DFSgraph } from "../../algorithms/dfs_graph";
 import { dijkstra_graph } from "../../algorithms/dijkstra_graph";
 import { BFSgraph } from "../../algorithms/bfs_graph";
@@ -324,63 +326,5 @@ class PathVisualizer extends React.Component<any, State> {
     );
   }
 }
-function generateGrid(numRows: number, numColumns: number) {
-  let grid: Node[][] = [];
-  for (let i = 1; i <= numRows; i++) {
-    grid[i] = [];
-    for (let j = 1; j <= numColumns; j++) {
-      grid[i][j] = new Node(i, j);
-    }
-  }
-  return grid;
-}
-
-interface AlgorithmOptions {
-  key: string;
-  text: string;
-  value: string;
-}
-
-const algorithmOptions: Array<AlgorithmOptions> = [
-  {
-    key: "Dijkstra",
-    text: "Dijkstra",
-    value: "Dijkstra",
-  },
-  {
-    key: "DFS",
-    text: "DFS",
-    value: "DFS",
-  },
-  {
-    key: "BFS",
-    text: "BFS",
-    value: "BFS",
-  },
-];
-
-interface SpeedOptions {
-  key: string;
-  text: string;
-  value: string;
-}
-
-const speedOptions: SpeedOptions[] = [
-  {
-    key: "Fast",
-    text: "Fast",
-    value: "Fast",
-  },
-  {
-    key: "Medium",
-    text: "Medium",
-    value: "Medium",
-  },
-  {
-    key: "Slow",
-    text: "Slow",
-    value: "Slow",
-  },
-];
 
 export default PathVisualizer;
