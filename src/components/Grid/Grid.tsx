@@ -84,13 +84,33 @@ class PathVisualizer extends React.Component<any, State> {
     // note: do not apply hover effect to start and end node when they have been selected
     if (!this.state.inProgress) {
       let updatedState: Node[][] = this.state.grid.slice();
+      let hoverNode: Node = this.state.grid[row][column];
       updatedState[row][column].hover = !updatedState[row][column].hover;
-      this.setState({ grid: updatedState });
+      this.setState({ grid: updatedState, currentHoverNode: hoverNode });
     }
   }
-  toggleWall(e: React.KeyboardEvent) {
-    if (e.key === "w" || e.key === "W") {
-      console.log("w pressed!");
+  handleKeyDown(e: KeyboardEvent) {
+    if (
+      !this.state.inProgress &&
+      this.state.currentHoverNode !== null &&
+      e.key === "w"
+    ) {
+      let updatedGrid: Node[][] = this.state.grid.slice();
+      let r: number = this.state.currentHoverNode.row;
+      let c: number = this.state.currentHoverNode.column;
+      updatedGrid[r][c].isWall = true;
+      this.setState({ grid: updatedGrid });
+    }
+    if (
+      !this.state.inProgress &&
+      this.state.currentHoverNode !== null &&
+      e.key === "W"
+    ) {
+      let updatedGrid: Node[][] = this.state.grid.slice();
+      let r: number = this.state.currentHoverNode.row;
+      let c: number = this.state.currentHoverNode.column;
+      updatedGrid[r][c].isWall = false;
+      this.setState({ grid: updatedGrid });
     }
   }
   handleAllAnimations(e: React.MouseEvent) {
@@ -233,6 +253,16 @@ class PathVisualizer extends React.Component<any, State> {
   handleAlgorithmSelection(e: any, { value }: any) {
     this.setState({ algorithm: value });
   }
+  componentDidMount() {
+    document.addEventListener("keypress", (e: KeyboardEvent) => {
+      this.handleKeyDown(e);
+    });
+  }
+  componentWillUnmount() {
+    document.removeEventListener("keypress", (e: KeyboardEvent) => {
+      this.handleKeyDown(e);
+    });
+  }
   render() {
     return (
       <React.Fragment>
@@ -293,25 +323,39 @@ class PathVisualizer extends React.Component<any, State> {
                 let arrow = node.isStart ? (
                   <i className="fa fa-arrow-right"></i>
                 ) : null;
+                let nodeReference: React.RefObject<HTMLDivElement> = React.createRef();
                 return (
                   <div
+                    ref={nodeReference}
                     onClick={(e) =>
                       this.handleClick.bind(this, e, node.row, node.column)()
                     }
                     onMouseEnter={(e) =>
-                      this.toggleHover.bind(this, e, node.row, node.column)()
+                      this.toggleHover.bind(
+                        this,
+                        e,
+                        node.row,
+                        node.column,
+                        nodeReference
+                      )()
                     }
                     onMouseLeave={(e) =>
-                      this.toggleHover.bind(this, e, node.row, node.column)()
+                      this.toggleHover.bind(
+                        this,
+                        e,
+                        node.row,
+                        node.column,
+                        nodeReference
+                      )()
                     }
-                    onKeyPress={(e) => this.toggleWall.bind(this, e)()}
-                    tabIndex={node.row}
+                    id={`${node.row}-${node.column}`}
                     className={`node
                           ${node.visited ? "visited-node" : null}
                           ${node.hover ? "hover-node" : null}
                           ${node.isStart ? "start-node" : null}
                           ${node.isEnd ? "end-node" : null}
                           ${node.isInShortestPath ? "shortest-path-node" : null}
+                          ${node.isWall ? "wall-node" : null}
                     `}
                   >
                     {target}

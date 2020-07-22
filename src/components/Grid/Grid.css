@@ -82,6 +82,27 @@ div.menu.transition {
 .node.end-node {
   background-color: blueviolet;
 }
+.node.wall-node {
+  background-color: black;
+  animation-name: wall-animation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+@keyframes wall-animation {
+  from {
+    border-radius: 50%;
+    background-color: var(--default-blue);
+    transform: scale(0);
+  }
+  to {
+    border-radius: 0%;
+    background-color: black;
+    transform: scale(1);
+  }
+}
+
 .visited-node {
   background-color: var(--navy-blue);
   width: 100%;

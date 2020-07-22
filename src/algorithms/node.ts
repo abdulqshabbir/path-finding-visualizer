@@ -7,7 +7,8 @@ export interface Node {
     isInShortestPath: boolean;
     hover: boolean;
     distanceFromStart: number;
-    previous: Node | null
+    previous: Node | null;
+    isWall: boolean;
 }
 
 export class Node {
@@ -21,6 +22,7 @@ export class Node {
         this.hover = false;
         this.distanceFromStart = Infinity;
         this.previous = null;
+        this.isWall = false;
     }
 }
 
