@@ -24,6 +24,13 @@ export class dijkstra_graph {
     this.numColumns = numColumns;
     this.gridFrames = [];
   }
+  isWall(row: number, col: number) {
+    if (this.grid[row][col].isWall) {
+      return true
+    } else {
+      return false
+    }
+  }
   positionIsValid(position: number) {
     // position is a row or column value for a particular node
     if (
@@ -38,16 +45,16 @@ export class dijkstra_graph {
   }
   findNeighbours(row: number, column: number) {
     let neighbours: Node[] = [];
-    if (this.positionIsValid(row + 1) && this.positionIsValid(column)) {
+    if (this.positionIsValid(row + 1) && this.positionIsValid(column) && !this.isWall(row + 1, column)) {
       neighbours.push(this.grid[row + 1][column]);
     }
-    if (this.positionIsValid(row) && this.positionIsValid(column + 1)) {
+    if (this.positionIsValid(row) && this.positionIsValid(column + 1) && !this.isWall(row, column + 1)) {
       neighbours.push(this.grid[row][column + 1]);
     }
-    if (this.positionIsValid(row - 1) && this.positionIsValid(column)) {
+    if (this.positionIsValid(row - 1) && this.positionIsValid(column) && !this.isWall(row - 1, column)) {
       neighbours.push(this.grid[row - 1][column]);
     }
-    if (this.positionIsValid(row) && this.positionIsValid(column - 1)) {
+    if (this.positionIsValid(row) && this.positionIsValid(column - 1) && !this.isWall(row, column - 1)) {
       neighbours.push(this.grid[row][column - 1]);
     }
     return neighbours;

@@ -31,18 +31,25 @@ export class BFSgraph {
             return false;
         }
     }
+    isWall(row: number, col: number) {
+        if (this.grid[row][col].isWall) {
+            return true
+        } else {
+            return false
+        }
+    }
     findNeighbours(row: number, column: number) {
         let neighbours: Node[] = [];
-        if (this.positionIsValid(row + 1) && this.positionIsValid(column)) {
+        if (this.positionIsValid(row + 1) && this.positionIsValid(column) && !this.isWall(row + 1, column)) {
             neighbours.push(this.grid[row + 1][column]);
         }
-        if (this.positionIsValid(row) && this.positionIsValid(column + 1)) {
+        if (this.positionIsValid(row) && this.positionIsValid(column + 1) && !this.isWall(row, column + 1)) {
             neighbours.push(this.grid[row][column + 1]);
         }
-        if (this.positionIsValid(row - 1) && this.positionIsValid(column)) {
+        if (this.positionIsValid(row - 1) && this.positionIsValid(column) && !this.isWall(row - 1, column)) {
             neighbours.push(this.grid[row - 1][column]);
         }
-        if (this.positionIsValid(row) && this.positionIsValid(column - 1)) {
+        if (this.positionIsValid(row) && this.positionIsValid(column - 1) && !this.isWall(row, column - 1)) {
             neighbours.push(this.grid[row][column - 1]);
         }
         return neighbours;
