@@ -112,6 +112,29 @@ class PathVisualizer extends React.Component<any, State> {
       updatedGrid[r][c].isWall = false;
       this.setState({ grid: updatedGrid });
     }
+    if (
+      !this.state.inProgress &&
+      this.state.currentHoverNode !== null &&
+      e.key === "e"
+    ) {
+      let updatedGrid: Node[][] = this.state.grid.slice();
+      let r: number = this.state.currentHoverNode.row;
+      let c: number = this.state.currentHoverNode.column;
+      updatedGrid[r][c].weight = 10;
+      this.setState({ grid: updatedGrid });
+    }
+
+    if (
+      !this.state.inProgress &&
+      this.state.currentHoverNode !== null &&
+      e.key === "E"
+    ) {
+      let updatedGrid: Node[][] = this.state.grid.slice();
+      let r: number = this.state.currentHoverNode.row;
+      let c: number = this.state.currentHoverNode.column;
+      updatedGrid[r][c].weight = 1;
+      this.setState({ grid: updatedGrid });
+    }
   }
   handleAllAnimations(e: React.MouseEvent) {
     // use 'that' to reference the PathVisualizer class from within setTimeout call
@@ -331,22 +354,10 @@ class PathVisualizer extends React.Component<any, State> {
                       this.handleClick.bind(this, e, node.row, node.column)()
                     }
                     onMouseEnter={(e) =>
-                      this.toggleHover.bind(
-                        this,
-                        e,
-                        node.row,
-                        node.column,
-                        nodeReference
-                      )()
+                      this.toggleHover.bind(this, e, node.row, node.column)()
                     }
                     onMouseLeave={(e) =>
-                      this.toggleHover.bind(
-                        this,
-                        e,
-                        node.row,
-                        node.column,
-                        nodeReference
-                      )()
+                      this.toggleHover.bind(this, e, node.row, node.column)()
                     }
                     id={`${node.row}-${node.column}`}
                     className={`node
@@ -356,6 +367,7 @@ class PathVisualizer extends React.Component<any, State> {
                           ${node.isEnd ? "end-node" : null}
                           ${node.isInShortestPath ? "shortest-path-node" : null}
                           ${node.isWall ? "wall-node" : null}
+                          ${node.weight === 10 ? "weight-node" : null}
                     `}
                   >
                     {target}
