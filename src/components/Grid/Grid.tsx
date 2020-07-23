@@ -10,6 +10,7 @@ import { BFSgraph } from "../../algorithms/bfs_graph";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
+export const WEIGHT: number = 3;
 
 interface State {
   grid: Node[][];
@@ -120,7 +121,7 @@ class PathVisualizer extends React.Component<any, State> {
       let updatedGrid: Node[][] = this.state.grid.slice();
       let r: number = this.state.currentHoverNode.row;
       let c: number = this.state.currentHoverNode.column;
-      updatedGrid[r][c].weight = 10;
+      updatedGrid[r][c].weight = WEIGHT;
       this.setState({ grid: updatedGrid });
     }
 
@@ -367,7 +368,7 @@ class PathVisualizer extends React.Component<any, State> {
                           ${node.isEnd ? "end-node" : null}
                           ${node.isInShortestPath ? "shortest-path-node" : null}
                           ${node.isWall ? "wall-node" : null}
-                          ${node.weight === 10 ? "weight-node" : null}
+                          ${node.weight === WEIGHT ? "weight-node" : null}
                     `}
                   >
                     {target}

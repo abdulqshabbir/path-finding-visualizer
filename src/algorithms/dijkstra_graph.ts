@@ -118,79 +118,89 @@ export class dijkstra_graph {
     }
     return false;
   }
+  markParent(child: Node, parent: Node) {
+    child = { ...child, previous: parent }
+    this.grid[child.row][child.column] = child
+  }
+  reconstructPath(): Node[] {
+    debugger;
+    let path: Node[] = []
+    // NOTE: we must use the grid here since the 'endNode' prev property does not get updated
+    let current: Node = this.grid[this.endNode.row][this.endNode.column]
+    path.unshift(current)
+    while (current.previous !== null) {
+      current = this.grid[current.previous.row][current.previous.column]
+      path.unshift(current)
+    }
+    return path
+  }
   dijsktra(): [Node[], Node[][][]] {
-    // WHILE there is an unvisited node
-    // get closestNode from start (call it 'current')
-    // look up current's neighbours
-    // FOR each neighbour
-    // find distance from startNode to that neighbour
-    // if distanceToNeighbour < distanceFromStart
-    // update distance
-    // update previous
-    // mark current as visited
-    let unvisitedNodes: Node[] = this.findUnvisitedNodes();
-    while (
-      unvisitedNodes.length !== 0 &&
-      this.endNodeUnvisited(unvisitedNodes)
-    ) {
-      let current: Node = this.findClosestUnvisitedNode(unvisitedNodes);
-      let currentNeighbours: Node[] = this.findNeighbours(
-        current.row,
-        current.column
-      );
+    let frontier: Node[] = [] // frontier is a list of nodes to be explored and will be treated as a queue
 
-      currentNeighbours.forEach((neighbour) => {
-        if (!this.isNeighbourVisited(neighbour)) {
-          let distanceToNeighbour: number = current.distanceFromStart + 1;
-          let knownDistance: number = neighbour.distanceFromStart;
-          if (distanceToNeighbour < knownDistance) {
-            this.grid[neighbour.row][
-              neighbour.column
-            ].distanceFromStart = distanceToNeighbour;
-            this.grid[neighbour.row][neighbour.column].previous = current;
+    this.startNode.distanceFromStart = 0
+    frontier.unshift(this.startNode)
+
+    while (frontier.length !== 0) {
+      let current: Node | undefined = frontier.pop()
+      if (current !== undefined && current.isEnd) {
+        this.markNodeAsVisited(current.row, current.column)
+        this.gridFrames.push(this.grid.slice())
+        break;
+      } else if (current !== undefined) {
+        let neighbours: Node[] = this.findNeighbours(current.row, current.column)
+        for (let i = 0; i < neighbours.length; i++) {
+          // IF NEIGHBOUR is not visited
+          if (!neighbours[i].visited) {
+            // IF NEIGHBOUR not in frontier
+            if (!frontierContainsNode(frontier, neighbours[i])) {
+              // enqueue NEIGHBOUR  
+              frontier.unshift(neighbours[i])
+            }
+            // calculate weight to NEIGHBOUR from start
+            let newNeighbourDistance: number = current.distanceFromStart + neighbours[i].weight
+            if (newNeighbourDistance < neighbours[i].distanceFromStart) {
+              neighbours[i].distanceFromStart = newNeighbourDistance
+              this.markParent(neighbours[i], current)
+            }
           }
         }
-      });
-
-      // current node is now visited, so remove from unvisited list
-      unvisitedNodes = unvisitedNodes.filter((node) => {
-        if (current.row === node.row && current.column === node.column) {
-          // remove current node
-          return false;
-        } else {
-          return true;
-        }
-      });
-
-      // mark current as visited in grid
-      this.markNodeAsVisited(current.row, current.column);
-
-      // store current grid frame
-      let gridFrame = this.grid.slice();
-      this.gridFrames.push(gridFrame);
-    }
-
-    let startRow: number = this.startNode.row,
-      startColumn: number = this.startNode.column,
-      endRow: number = this.endNode.row,
-      endColumn: number = this.endNode.column,
-      currentNode: Node = this.grid[endRow][endColumn];
-
-    let shortestPath: Node[] = [this.grid[endRow][endColumn]];
-
-    while (true) {
-      if (currentNode.row === startRow && currentNode.column === startColumn) {
-        break;
-      } else {
-        if (currentNode.previous !== null) {
-          currentNode = currentNode.previous;
-          shortestPath.unshift(currentNode);
-        } else {
-          break;
-        }
+        // sort FRONTIER by distanceFromStart
+        frontier = frontier.sort(sortFrontierByDistances)
+        this.markNodeAsVisited(current.row, current.column)
+        this.gridFrames.push(this.grid.slice())
+        // remove current from FRONTIER
+        frontier = frontier.filter(n => {
+          if (n.row === current?.row && n.column === current?.column) {
+            return false
+          } else {
+            return true
+          }
+        })
       }
+
     }
-    return [shortestPath, this.gridFrames.slice()];
+    let path: Node[] = this.reconstructPath()
+
+    return [path, this.gridFrames]
+  }
+}
+
+function frontierContainsNode(nodes: Node[], targetNode: Node) {
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].row === targetNode.row && nodes[i].column === targetNode.column) {
+      return true
+    }
+  }
+  return false
+}
+
+function sortFrontierByDistances(node1: Node, node2: Node) {
+  if (node1.distanceFromStart < node2.distanceFromStart) {
+    return 1
+  } else if (node1.distanceFromStart > node2.distanceFromStart) {
+    return -1
+  } else {
+    return 0
   }
 }
 
