@@ -73,32 +73,6 @@ export class dijkstra_graph {
       })
     );
   }
-  findUnvisitedNodes(): Node[] {
-    let unvisitedNodes: Node[] = [];
-
-    this.grid.forEach((row) => {
-      row.forEach((node) => {
-        if (!node.visited) {
-          unvisitedNodes.push(node);
-        }
-      });
-    });
-    return unvisitedNodes;
-  }
-  findClosestUnvisitedNode(unvisitedNodes: Node[]): Node {
-    let closestNode: Node = this.startNode;
-    let minDistance: number = 1000000;
-    // FOR each unvisited node, if distance from start is less than minDistance than update minDistance and closestNode
-    unvisitedNodes.forEach((node) => {
-      let nodeDistance = node.distanceFromStart;
-      if (nodeDistance < minDistance) {
-        minDistance = nodeDistance;
-        closestNode = node;
-      }
-    });
-
-    return closestNode;
-  }
   isNeighbourVisited(neighbour: Node): boolean {
     let isVisited: boolean = this.grid[neighbour.row][neighbour.column].visited;
     if (isVisited) {
@@ -106,17 +80,6 @@ export class dijkstra_graph {
     } else {
       return false;
     }
-  }
-  endNodeUnvisited(unvisitedNodes: Node[]) {
-    for (let i = 0; i < unvisitedNodes.length; i++) {
-      if (
-        unvisitedNodes[i].row === this.endNode.row &&
-        unvisitedNodes[i].column === this.endNode.column
-      ) {
-        return true;
-      }
-    }
-    return false;
   }
   markParent(child: Node, parent: Node) {
     child = { ...child, previous: parent }

@@ -221,6 +221,14 @@ class PathVisualizer extends React.Component<any, State> {
         });
       }, that.state.timeBetweenAnimationFrames * gridFrames.length + that.state.timeBetweenAnimationFrames * i);
     }
+
+    // Mark animation as complete when visited and shortest path animations have completed
+    let totalAnimationTime =
+      that.state.timeBetweenAnimationFrames * gridFrames.length +
+      that.state.timeBetweenAnimationFrames * shortestPath.length;
+    setTimeout(() => {
+      this.setState({ inProgress: !this.state.inProgress });
+    }, totalAnimationTime);
   }
   markAsShortestPathNode(nodeRow: number, nodeColumn: number) {
     let updatedGrid = this.state.grid.slice().map((row) =>
@@ -300,6 +308,7 @@ class PathVisualizer extends React.Component<any, State> {
                 placeholder="Select algorithm"
                 options={algorithmOptions}
                 className="algorithms"
+                disabled={this.state.inProgress}
               />
             </div>
             <div className="dropdown-container">
@@ -309,15 +318,14 @@ class PathVisualizer extends React.Component<any, State> {
                 placeholder="Animation Speed"
                 options={speedOptions}
                 className="animation-speed"
+                disabled={this.state.inProgress}
               />
             </div>
             <Button
               disabled={
-                this.state.startNode &&
-                this.state.endNode &&
-                !this.state.inProgress
-                  ? false
-                  : true
+                this.state.startNode === null ||
+                this.state.endNode === null ||
+                this.state.inProgress
               }
               onClick={(e: React.MouseEvent) =>
                 this.handleAllAnimations.bind(this, e)()
@@ -329,6 +337,7 @@ class PathVisualizer extends React.Component<any, State> {
               onClick={(e: React.MouseEvent) => {
                 this.resetBoard.bind(this, e)();
               }}
+              disabled={this.state.inProgress}
             >
               Reset Board
             </Button>
