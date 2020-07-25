@@ -1,6 +1,6 @@
 import { Node } from "./node";
 
-export interface a_star_graph {
+export interface aStarGraph {
     startNode: Node;
     endNode: Node;
     grid: Node[][];
@@ -9,7 +9,7 @@ export interface a_star_graph {
     gridFrames: Node[][][];
 }
 
-export class a_star_graph {
+export class aStarGraph {
     constructor(
         grid: Node[][],
         startNode: Node,
@@ -97,142 +97,141 @@ export class a_star_graph {
         }
         return path
     }
-    aStar(): [Node[], Node[][][]] {
+
+    hScore(node: Node) {
+        // Returns the straight-line distance from given node to target node
+        // h score is a 'heuristic' or 'best guess' for which paths to explore next
+        const deltaX = Math.abs(this.endNode.column - node.column)
+        const deltaY = Math.abs(this.endNode.row - node.row)
+        return Math.sqrt(deltaX ** 2 + deltaY ** 2)
+    }
+    gScore(current: Node, neighbour: Node) {
+        // Returns a number that represents the currently best known (cheapest) path from start node to current node
+        return current.distanceFromStart + neighbour.weight
+    }
+    updateCostsInFrontier(frontier: Node[], neighbour: Node, gCost: number): Node[] {
+        let hCost = this.hScore(neighbour)
+        let fCost = hCost + gCost
+        return frontier.map(node => {
+            if (node.row === neighbour.row && node.column === neighbour.column) {
+                return {
+                    ...node,
+                    gCost: gCost,
+                    hCost: hCost,
+                    fCost: fCost
+                }
+            } else {
+                return node
+            }
+        })
+    }
+
+    frontierContains(node: Node, frontier: Node[]) {
+        for (let i = 0; i < frontier.length; i++) {
+            if (frontier[i].row === node.row && frontier[i].column === node.column) {
+                return true
+            }
+        }
+        return false
+    }
+
+    findLowestFCostNode(frontier: Node[]): Node {
+        let minFCost = Infinity
+        let bestNode = frontier[0]
+
+        frontier.forEach(node => {
+            if (node.fCost < minFCost) {
+                minFCost = node.fCost
+                bestNode = node
+            }
+        })
+        return bestNode
+    }
+    removeCurrentFromFrontier(frontier: Node[], current: Node): Node[] {
+        function foundCurrent(node: Node) {
+            if (node.row === current.row && node.column === current.column) {
+                return true
+            } else {
+                return false
+            }
+        }
+        for (let i = 0; i < frontier.length; i++) {
+            if (foundCurrent(frontier[i])) {
+                frontier.splice(i, 1)
+            }
+        }
+        return frontier
+    }
+    aStarSearch(): [Node[], Node[][][]] {
+        let frontier: Node[] = [] // set of all open nodes to be explored
+        let current: Node // current node being examined
+        let neighbours: Node[] // neighbouring nodes of current
+
+        // initialize scores for start node
+        this.startNode.gCost = 0
+        this.startNode.hCost = this.hScore(this.startNode)
+        this.startNode.fCost = 0
+        frontier.push(this.startNode)
+
         /*
-            FRONTIER  // set of nodes to be considered (list)
-            VISITED  // set of nodes already considered
-            CURRENT // current node being explored
-
-            add start node to FRONTIER
-            set startNode.fcost = 0
-
-            WHILE FRONTIER not empty
+        
+        WHILE FRONTIER not empty
                 CURRENT = node in FRONTIER with lowest f_cost
                 remove CURRENT from FRONTIER
-                add CURRENT to VISISTED
+                mark CURRENT as VISITED
 
                 IF CURRENT === endNode
-                    mark
+                    break
 
+                ELSE
+                    FOR each NEIGHBOUR of CURRENT:
+                        tentative_gScore = gScore(CURRENT, NEIGHBOUR)
+                        IF (tentative_gScore < NEIGHBOUR.gScore)
+                            // path to CURRENT is cheaper so record it and update gCost
+                            mark CURRENT as parent of NEIGHBOUR
+                            NEIGHBOUR.gScore is tentative_gScore
+                            NEIGHBOUR.fScore = fScore(CURRENT, NEIGHBOUR)
 
-        
+                            // if NEIGHBOUR is not already in FRONTIER add NEIGHBOUR
+                            IF (NEIGHBOUR not in FRONTIER & not in VISITED)
+                                add NEIGHBOUR to FRONTIER
+
             
+            path = reconstructPath()
+
+            return [path, frames]
         */
-
-        /*
-            function: findLowestFCostNode(frontier) -> bestNode
-                MINFCOST // intialize to Infinity
-                BESTNODE // Ideal node to explore
-
-                FOR each node in FRONTIER:
-                    IF node.fcost < minfcost
-                      MINFCOST is node.fcost
-                      BESTNODE is node
-            
-                RETURN bestNode
-        */
-
-        /*
-            function: findFCost(node: Node) -> fCost: number
-                return findHcost(node) + findGCost(node)
-        
-        */
-
-
-        /*
-            function: findHCost(node: Node) -> hCost: number
-            // hCost: straight-line distance from endNode
-
-                DELTAX // horizontal distance away from endNode
-                DELTAY // vertical distance away from endNode
-
-                DELTAX = | endNode.column - node.column |
-                DELTAY = | endNOde.row - node.row |
-
-                RETURN Math.sqrt(DELX^2 + DELY^2)
-        */
-
-        /*
-            function: findGCost(node: Node) -> gCost: number
-            // gCost: straight-line distance from starting node
-            
-                DELTAX // horizontal distance away from endNode
-                DELTAY // vertical distance away from endNode
-
-                DELTAX = | endNode.column - node.column |
-                DELTAY = | endNOde.row - node.row |
-        
-        */
-
-        /* */
-
-        let frontier: Node[] = [] // frontier is a list of nodes to be explored and will be treated as a queue
-
-        this.startNode.distanceFromStart = 0
-        frontier.unshift(this.startNode)
 
         while (frontier.length !== 0) {
-            let current: Node | undefined = frontier.pop()
-            if (current !== undefined && current.isEnd) {
-                this.markNodeAsVisited(current.row, current.column)
-                this.gridFrames.push(this.grid.slice())
+            current = this.findLowestFCostNode(frontier)
+            this.removeCurrentFromFrontier(frontier, current)
+            this.markNodeAsVisited(current.row, current.column)
+            this.gridFrames.push(this.grid.slice())
+
+            if (current.isEnd) {
                 break;
-            } else if (current !== undefined) {
-                let neighbours: Node[] = this.findNeighbours(current.row, current.column)
+            } else {
+                neighbours = this.findNeighbours(current.row, current.column)
+
                 for (let i = 0; i < neighbours.length; i++) {
-                    // IF NEIGHBOUR is not visited
-                    if (!neighbours[i].visited) {
-                        // IF NEIGHBOUR not in frontier
-                        if (!frontierContainsNode(frontier, neighbours[i])) {
-                            // enqueue NEIGHBOUR  
-                            frontier.unshift(neighbours[i])
-                        }
-                        // calculate weight to NEIGHBOUR from start
-                        let newNeighbourDistance: number = current.distanceFromStart + neighbours[i].weight
-                        if (newNeighbourDistance < neighbours[i].distanceFromStart) {
-                            neighbours[i].distanceFromStart = newNeighbourDistance
-                            this.markParent(neighbours[i], current)
-                        }
+                    // if neighbour not in frontier, add neighbour
+                    if (!this.frontierContains(neighbours[i], frontier) && !neighbours[i].visited) {
+                        frontier.push(neighbours[i])
+                    }
+
+                    let tentativeGCost = this.gScore(current, neighbours[i])
+                    if (tentativeGCost < neighbours[i].gCost) {
+                        // path to current is cheaper so record it
+                        this.markParent(neighbours[i], current)
+
+                        // update g-h-f score of neighbour in frontier
+                        this.updateCostsInFrontier(frontier, neighbours[i], tentativeGCost)
                     }
                 }
-                // sort FRONTIER by distanceFromStart
-                frontier = frontier.sort(sortFrontierByDistances)
-                this.markNodeAsVisited(current.row, current.column)
-                this.gridFrames.push(this.grid.slice())
-                // remove current from FRONTIER
-                frontier = frontier.filter(n => {
-                    if (n.row === current?.row && n.column === current?.column) {
-                        return false
-                    } else {
-                        return true
-                    }
-                })
             }
 
         }
         let path: Node[] = this.reconstructPath()
-
         return [path, this.gridFrames]
     }
 }
-
-function frontierContainsNode(nodes: Node[], targetNode: Node) {
-    for (let i = 0; i < nodes.length; i++) {
-        if (nodes[i].row === targetNode.row && nodes[i].column === targetNode.column) {
-            return true
-        }
-    }
-    return false
-}
-
-function sortFrontierByDistances(node1: Node, node2: Node) {
-    if (node1.distanceFromStart < node2.distanceFromStart) {
-        return 1
-    } else if (node1.distanceFromStart > node2.distanceFromStart) {
-        return -1
-    } else {
-        return 0
-    }
-}
-
-export default a_star_graph;

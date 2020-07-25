@@ -7,6 +7,7 @@ import { generateGrid } from "./helpers/generateGrid";
 import { DFSgraph } from "../../algorithms/dfs_graph";
 import { dijkstra_graph } from "../../algorithms/dijkstra_graph";
 import { BFSgraph } from "../../algorithms/bfs_graph";
+import { aStarGraph } from "../../algorithms/a_star_graph";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
@@ -18,7 +19,7 @@ interface State {
   endNode: Node | null;
   currentHoverNode: Node | null;
   inProgress: boolean;
-  algorithm: "DFS" | "BFS" | "Dijkstra";
+  algorithm: "DFS" | "BFS" | "Dijkstra" | "Astar";
   timeBetweenAnimationFrames: number;
 }
 
@@ -146,7 +147,7 @@ class PathVisualizer extends React.Component<any, State> {
     }
 
     // by default, a DFS search is performed
-    let g: DFSgraph | BFSgraph | dijkstra_graph = new BFSgraph(
+    let g: DFSgraph | BFSgraph | dijkstra_graph | aStarGraph = new BFSgraph(
       this.state.grid,
       this.state.startNode,
       this.state.endNode,
@@ -186,6 +187,16 @@ class PathVisualizer extends React.Component<any, State> {
       );
       path = g.breadthFirstSeach()[0];
       gridFrames = g.breadthFirstSeach()[1];
+    } else if (this.state.algorithm === "Astar") {
+      g = new aStarGraph(
+        this.state.grid,
+        this.state.startNode,
+        this.state.endNode,
+        NUM_OF_ROWS,
+        NUM_OF_COLUMNS
+      );
+      path = g.aStarSearch()[0];
+      gridFrames = g.aStarSearch()[1];
     }
     // keep track of when program is inProgress to prevent user from starting another search while a search is happening
     this.setState({ inProgress: true });

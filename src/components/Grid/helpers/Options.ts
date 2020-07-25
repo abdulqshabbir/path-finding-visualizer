@@ -25,6 +25,11 @@ export const algorithmOptions: AlgorithmOptions[] = [
         text: "BFS",
         value: "BFS",
     },
+    {
+        key: "Astar",
+        text: "Astar",
+        value: "Astar",
+    },
 ];
 
 

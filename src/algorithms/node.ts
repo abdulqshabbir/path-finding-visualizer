@@ -10,6 +10,9 @@ export interface Node {
     previous: Node | null;
     isWall: boolean;
     weight: number;
+    gCost: number;
+    hCost: number;
+    fCost: number;
 }
 
 export class Node {
@@ -25,6 +28,9 @@ export class Node {
         this.previous = null;
         this.isWall = false;
         this.weight = 1
+        this.gCost = Infinity
+        this.hCost = Infinity
+        this.fCost = Infinity
     }
 }
 
