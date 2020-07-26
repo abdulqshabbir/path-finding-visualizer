@@ -86,7 +86,6 @@ export class aStarGraph {
         this.grid[child.row][child.column] = child
     }
     reconstructPath(): Node[] {
-        debugger;
         let path: Node[] = []
         // NOTE: we must use the grid here since the 'endNode' prev property does not get updated
         let current: Node = this.grid[this.endNode.row][this.endNode.column]
@@ -107,7 +106,7 @@ export class aStarGraph {
     }
     gScore(current: Node, neighbour: Node) {
         // Returns a number that represents the currently best known (cheapest) path from start node to current node
-        return current.distanceFromStart + neighbour.weight
+        return current.gCost + neighbour.weight
     }
     updateCostsInFrontier(frontier: Node[], neighbour: Node, gCost: number): Node[] {
         let hCost = this.hScore(neighbour)
@@ -116,6 +115,7 @@ export class aStarGraph {
             if (node.row === neighbour.row && node.column === neighbour.column) {
                 return {
                     ...node,
+                    distanceFromStart: gCost,
                     gCost: gCost,
                     hCost: hCost,
                     fCost: fCost
@@ -218,14 +218,16 @@ export class aStarGraph {
                     if (!this.frontierContains(neighbours[i], frontier) && !neighbours[i].visited) {
                         frontier.push(neighbours[i])
                     }
+                    if (!neighbours[i].visited) {
+                        let tentativeGCost = this.gScore(current, neighbours[i])
+                        if (tentativeGCost < neighbours[i].gCost) {
+                            // path to current is cheaper so record it
+                            this.markParent(neighbours[i], current)
 
-                    let tentativeGCost = this.gScore(current, neighbours[i])
-                    if (tentativeGCost < neighbours[i].gCost) {
-                        // path to current is cheaper so record it
-                        this.markParent(neighbours[i], current)
-
-                        // update g-h-f score of neighbour in frontier
-                        this.updateCostsInFrontier(frontier, neighbours[i], tentativeGCost)
+                            // update g-h-f score of neighbour in frontier
+                            // note this returns another array (no mutation)
+                            frontier = this.updateCostsInFrontier(frontier, neighbours[i], tentativeGCost)
+                        }
                     }
                 }
             }

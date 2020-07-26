@@ -195,8 +195,9 @@ class PathVisualizer extends React.Component<any, State> {
         NUM_OF_ROWS,
         NUM_OF_COLUMNS
       );
-      path = g.aStarSearch()[0];
-      gridFrames = g.aStarSearch()[1];
+      let result = g.aStarSearch();
+      path = result[0];
+      gridFrames = result[1];
     }
     // keep track of when program is inProgress to prevent user from starting another search while a search is happening
     this.setState({ inProgress: true });
