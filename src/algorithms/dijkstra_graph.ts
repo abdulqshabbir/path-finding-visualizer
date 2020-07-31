@@ -97,7 +97,7 @@ export class dijkstra_graph {
     }
     return path
   }
-  dijsktra(): [Node[], Node[][][]] {
+  dijkstra(): [Node[], Node[][][]] {
     let frontier: Node[] = [] // frontier is a list of nodes to be explored and will be treated as a queue
 
     this.startNode.distanceFromStart = 0

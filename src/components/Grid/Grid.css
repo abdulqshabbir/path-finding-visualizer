@@ -12,7 +12,6 @@
   height: 8vh;
   color: white;
   font-weight: 400;
-  margin-bottom: 5vh;
 }
 
 .menu {
@@ -49,17 +48,50 @@ div.menu.transition {
 
 .grid-container {
   display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
   justify-content: center;
+}
+
+.tips {
+  color: white;
+  background-color: var(--navy-blue);
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 300px;
+  height: 400px;
+  padding: 10px;
+  font-size: 20px;
+  font-weight: 100;
+  line-height: 30px;
+  transform: translate3d(80vw, 30vh, 0);
+  animation-name: tips-animation;
+  animation-delay: 3s;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+@keyframes tips-animation {
+  from {
+    transform: translate3d(100vw, 30vh, 0);
+  }
+  to {
+    transform: translate3d(80vw, 30vh, 0);
+  }
 }
 
 .grid {
   display: grid;
+  padding-top: 100px;
   grid-template-columns: repeat(var(--NUM_OF_COLUMNS), 1fr);
   grid-template-rows: repeat(var(--NUM_OF_ROWS), 1fr);
   width: 1000px;
   height: 1000px;
   grid-gap: 2px;
 }
+
 .node {
   display: flex;
   background-color: var(--default-blue);

@@ -138,15 +138,14 @@ class PathVisualizer extends React.Component<any, State> {
       this.setState({ grid: updatedGrid });
     }
   }
-  handleAllAnimations(e: React.MouseEvent) {
-    // use 'that' to reference the PathVisualizer class from within setTimeout call
-    let that = this;
-    // if startNode and endNode are not selected, do not continue
+  generateAnimationFrames() {
     if (this.state.startNode === null || this.state.endNode === null) {
-      return;
+      return {
+        path: [],
+        gridFrames: [],
+      };
     }
-
-    // by default, a DFS search is performed
+    // by default, a BFS search is performed
     let g: DFSgraph | BFSgraph | dijkstra_graph | aStarGraph = new BFSgraph(
       this.state.grid,
       this.state.startNode,
@@ -154,6 +153,7 @@ class PathVisualizer extends React.Component<any, State> {
       NUM_OF_ROWS,
       NUM_OF_COLUMNS
     );
+
     let path: Node[] = g.breadthFirstSeach()[0];
     let gridFrames: Node[][][] = g.breadthFirstSeach()[1];
 
@@ -165,8 +165,8 @@ class PathVisualizer extends React.Component<any, State> {
         NUM_OF_ROWS,
         NUM_OF_COLUMNS
       );
-      path = g.dijsktra()[0];
-      gridFrames = g.dijsktra()[1];
+      path = g.dijkstra()[0];
+      gridFrames = g.dijkstra()[1];
     } else if (this.state.algorithm === "DFS") {
       g = new DFSgraph(
         this.state.grid,
@@ -178,15 +178,8 @@ class PathVisualizer extends React.Component<any, State> {
       path = g.depthFirstSearch()[0];
       gridFrames = g.depthFirstSearch()[1];
     } else if (this.state.algorithm === "BFS") {
-      g = new BFSgraph(
-        this.state.grid,
-        this.state.startNode,
-        this.state.endNode,
-        NUM_OF_ROWS,
-        NUM_OF_COLUMNS
-      );
-      path = g.breadthFirstSeach()[0];
-      gridFrames = g.breadthFirstSeach()[1];
+      // do nothing,
+      // since BFS is selected by default
     } else if (this.state.algorithm === "Astar") {
       g = new aStarGraph(
         this.state.grid,
@@ -199,8 +192,29 @@ class PathVisualizer extends React.Component<any, State> {
       path = result[0];
       gridFrames = result[1];
     }
+    return {
+      path: path,
+      gridFrames: gridFrames,
+    };
+  }
+  handleAllAnimations(e: React.MouseEvent) {
+    // use 'that' to reference the PathVisualizer class from within setTimeout call
+    let that = this;
+
+    // if startNode and endNode are not selected, do not continue
+    if (this.state.startNode === null || this.state.endNode === null) {
+      return;
+    }
+
+    // path represents the path animated in yellow from start to finish
+    // gridFrames reprsents the frame by frame animation for nodes being visited as the algorithm tries to find the end node
+    let path = this.generateAnimationFrames().path;
+    let gridFrames = this.generateAnimationFrames().gridFrames;
+
     // keep track of when program is inProgress to prevent user from starting another search while a search is happening
     this.setState({ inProgress: true });
+
+    // create setTimeout calls for animations
     this.animateNodeVisit(gridFrames, that);
     this.animateShortestPath(path, gridFrames, that);
   }
@@ -356,6 +370,17 @@ class PathVisualizer extends React.Component<any, State> {
           </div>
         </div>
         <div className="grid-container">
+          <div className={"tips"}>
+            <i className="fa fa-times"></i>
+            <p>Tips:</p>
+            <p>While moving the mouse...</p>
+            <ol>
+              <li>Hold down "w" to create walls!</li>
+              <li>Hold down "W" to remove walls!</li>
+              <li>Hold down "e" to create weights!</li>
+              <li>Hold down "W" to create weights!</li>
+            </ol>
+          </div>
           <div
             className={"grid"}
             style={!this.state.inProgress ? { cursor: "pointer" } : {}}
