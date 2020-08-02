@@ -8,6 +8,7 @@ import { DFSgraph } from "../../algorithms/dfs_graph";
 import { dijkstra_graph } from "../../algorithms/dijkstra_graph";
 import { BFSgraph } from "../../algorithms/bfs_graph";
 import { aStarGraph } from "../../algorithms/a_star_graph";
+import Tutorial from "../Tutorial/Tutorial";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;
@@ -324,90 +325,80 @@ class PathVisualizer extends React.Component<any, State> {
   render() {
     return (
       <React.Fragment>
-        <div className="menu-container">
-          <div className="menu">
-            <div className="title">Path Finder</div>
-            <div className="dropdown-container">
-              <Dropdown
-                button
-                onChange={this.handleAlgorithmSelection.bind(this)}
-                placeholder="Select algorithm"
-                options={algorithmOptions}
-                className="algorithms"
+        <div className="app-container">
+          <div className="menu-container">
+            <div className="menu">
+              <div className="title">Path Finder</div>
+              <div className="dropdown-container">
+                <Dropdown
+                  button
+                  onChange={this.handleAlgorithmSelection.bind(this)}
+                  placeholder="Select algorithm"
+                  options={algorithmOptions}
+                  className="algorithms"
+                  disabled={this.state.inProgress}
+                />
+              </div>
+              <div className="dropdown-container">
+                <Dropdown
+                  onChange={this.handleAnimationSpeed.bind(this)}
+                  button
+                  placeholder="Animation Speed"
+                  options={speedOptions}
+                  className="animation-speed"
+                  disabled={this.state.inProgress}
+                />
+              </div>
+              <Button
+                disabled={
+                  this.state.startNode === null ||
+                  this.state.endNode === null ||
+                  this.state.inProgress
+                }
+                onClick={(e: React.MouseEvent) =>
+                  this.handleAllAnimations.bind(this, e)()
+                }
+              >
+                Start Search
+              </Button>
+              <Button
+                onClick={(e: React.MouseEvent) => {
+                  this.resetBoard.bind(this, e)();
+                }}
                 disabled={this.state.inProgress}
-              />
+              >
+                Reset Board
+              </Button>
             </div>
-            <div className="dropdown-container">
-              <Dropdown
-                onChange={this.handleAnimationSpeed.bind(this)}
-                button
-                placeholder="Animation Speed"
-                options={speedOptions}
-                className="animation-speed"
-                disabled={this.state.inProgress}
-              />
-            </div>
-            <Button
-              disabled={
-                this.state.startNode === null ||
-                this.state.endNode === null ||
-                this.state.inProgress
-              }
-              onClick={(e: React.MouseEvent) =>
-                this.handleAllAnimations.bind(this, e)()
-              }
-            >
-              Start Search
-            </Button>
-            <Button
-              onClick={(e: React.MouseEvent) => {
-                this.resetBoard.bind(this, e)();
-              }}
-              disabled={this.state.inProgress}
-            >
-              Reset Board
-            </Button>
           </div>
-        </div>
-        <div className="grid-container">
-          <div className={"tips"}>
-            <i className="fa fa-times"></i>
-            <p>Tips:</p>
-            <p>While moving the mouse...</p>
-            <ol>
-              <li>Hold down "w" to create walls!</li>
-              <li>Hold down "W" to remove walls!</li>
-              <li>Hold down "e" to create weights!</li>
-              <li>Hold down "W" to create weights!</li>
-            </ol>
-          </div>
-          <div
-            className={"grid"}
-            style={!this.state.inProgress ? { cursor: "pointer" } : {}}
-          >
-            {this.state.grid.map((row) => {
-              return row.map((node) => {
-                let target = node.isEnd ? (
-                  <i className="fa fa-bullseye"></i>
-                ) : null;
-                let arrow = node.isStart ? (
-                  <i className="fa fa-arrow-right"></i>
-                ) : null;
-                let nodeReference: React.RefObject<HTMLDivElement> = React.createRef();
-                return (
-                  <div
-                    ref={nodeReference}
-                    onClick={(e) =>
-                      this.handleClick.bind(this, e, node.row, node.column)()
-                    }
-                    onMouseEnter={(e) =>
-                      this.toggleHover.bind(this, e, node.row, node.column)()
-                    }
-                    onMouseLeave={(e) =>
-                      this.toggleHover.bind(this, e, node.row, node.column)()
-                    }
-                    id={`${node.row}-${node.column}`}
-                    className={`node
+          <div className="grid-container">
+            <div
+              className={"grid"}
+              style={!this.state.inProgress ? { cursor: "pointer" } : {}}
+            >
+              {this.state.grid.map((row) => {
+                return row.map((node) => {
+                  let target = node.isEnd ? (
+                    <i className="fa fa-bullseye"></i>
+                  ) : null;
+                  let arrow = node.isStart ? (
+                    <i className="fa fa-arrow-right"></i>
+                  ) : null;
+                  let nodeReference: React.RefObject<HTMLDivElement> = React.createRef();
+                  return (
+                    <div
+                      ref={nodeReference}
+                      onClick={(e) =>
+                        this.handleClick.bind(this, e, node.row, node.column)()
+                      }
+                      onMouseEnter={(e) =>
+                        this.toggleHover.bind(this, e, node.row, node.column)()
+                      }
+                      onMouseLeave={(e) =>
+                        this.toggleHover.bind(this, e, node.row, node.column)()
+                      }
+                      id={`${node.row}-${node.column}`}
+                      className={`node
                           ${node.visited ? "visited-node" : null}
                           ${node.hover ? "hover-node" : null}
                           ${node.isStart ? "start-node" : null}
@@ -416,14 +407,16 @@ class PathVisualizer extends React.Component<any, State> {
                           ${node.isWall ? "wall-node" : null}
                           ${node.weight === WEIGHT ? "weight-node" : null}
                     `}
-                  >
-                    {target}
-                    {arrow}
-                  </div>
-                );
-              });
-            })}
+                    >
+                      {target}
+                      {arrow}
+                    </div>
+                  );
+                });
+              })}
+            </div>
           </div>
+          <Tutorial />
         </div>
       </React.Fragment>
     );
