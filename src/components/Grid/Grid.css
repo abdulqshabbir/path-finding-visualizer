@@ -182,9 +182,12 @@ div.menu.transition {
 
 .app-container {
   display: grid;
-  grid-template-rows: 15vh 75vh 10vh;
+  grid-template-rows: 13vh 80vh 7vh;
 }
 
 button.ui.button {
-  height: 5vh;
+  width: 150px;
+  height: 40px;
+  padding: 10px;
+  text-align: center;
 }
