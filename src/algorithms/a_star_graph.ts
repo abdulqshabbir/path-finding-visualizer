@@ -74,30 +74,6 @@ export class aStarGraph {
             })
         );
     }
-    updateCostsInGrid(node: Node, fCost: number, gCost: number, hCost: number) {
-        this.grid = this.grid.map(row => {
-            return row.map(n => {
-                if (n.row === node.row && n.column === node.column) {
-                    return {
-                        ...node,
-                        fCost: fCost,
-                        gCost: gCost,
-                        hCost: hCost
-                    }
-                } else {
-                    return node
-                }
-            })
-        })
-    }
-    isNeighbourVisited(neighbour: Node): boolean {
-        let isVisited: boolean = this.grid[neighbour.row][neighbour.column].visited;
-        if (isVisited) {
-            return true;
-        } else {
-            return false;
-        }
-    }
     markParent(child: Node, parent: Node) {
         child = { ...child, previous: parent }
         this.grid[child.row][child.column] = child
@@ -148,33 +124,6 @@ export class aStarGraph {
             }
         }
         return false
-    }
-    findLowestFCostNode(frontier: Node[]): Node {
-        let minFCost = Infinity
-        let bestNode = frontier[0]
-
-        frontier.forEach(node => {
-            if (node.fCost < minFCost) {
-                minFCost = node.fCost
-                bestNode = node
-            }
-        })
-        return bestNode
-    }
-    removeCurrentFromFrontier(frontier: Node[], current: Node): Node[] {
-        function foundCurrent(node: Node) {
-            if (node.row === current.row && node.column === current.column) {
-                return true
-            } else {
-                return false
-            }
-        }
-        for (let i = 0; i < frontier.length; i++) {
-            if (foundCurrent(frontier[i])) {
-                frontier.splice(i, 1)
-            }
-        }
-        return frontier
     }
     aStarSearch(): [Node[], Node[][][]] {
         let frontier: PriorityQueue = new PriorityQueue() // set of all open nodes to be explored
