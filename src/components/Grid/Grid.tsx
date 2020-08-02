@@ -378,16 +378,20 @@ class PathVisualizer extends React.Component<any, State> {
             >
               {this.state.grid.map((row) => {
                 return row.map((node) => {
-                  let target = node.isEnd ? (
+                  const target = node.isEnd ? (
                     <i className="fa fa-bullseye"></i>
                   ) : null;
-                  let arrow = node.isStart ? (
+                  const arrow = node.isStart ? (
                     <i className="fa fa-arrow-right"></i>
                   ) : null;
-                  let nodeReference: React.RefObject<HTMLDivElement> = React.createRef();
+
+                  const weight =
+                    node.weight === WEIGHT && node.visited === false ? (
+                      <i className="fa fa-balance-scale"></i>
+                    ) : null;
+
                   return (
                     <div
-                      ref={nodeReference}
                       onClick={(e) =>
                         this.handleClick.bind(this, e, node.row, node.column)()
                       }
@@ -410,6 +414,7 @@ class PathVisualizer extends React.Component<any, State> {
                     >
                       {target}
                       {arrow}
+                      {weight}
                     </div>
                   );
                 });

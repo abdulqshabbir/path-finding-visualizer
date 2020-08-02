@@ -59,8 +59,8 @@ div.menu.transition {
   display: grid;
   grid-template-columns: repeat(var(--NUM_OF_COLUMNS), 1fr);
   grid-template-rows: repeat(var(--NUM_OF_ROWS), 1fr);
-  width: 600px;
-  height: 600px;
+  width: 700px;
+  height: 700px;
   grid-gap: 1px;
 }
 
@@ -83,11 +83,15 @@ div.menu.transition {
   font-size: 200%;
 }
 
+.fa-balance-scale {
+  font-size: 200%;
+}
+
 .node.end-node {
   background-color: blueviolet;
 }
 .node.wall-node {
-  background-color: purple;
+  background-color: black;
   animation-name: wall-animation;
   animation-duration: 0.1s;
   animation-timing-function: ease-in-out;
@@ -105,7 +109,7 @@ div.menu.transition {
   }
   to {
     border-radius: 0%;
-    background-color: purple;
+    background-color: black;
     transform: scale(1);
   }
 }
