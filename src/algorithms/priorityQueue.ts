@@ -20,8 +20,8 @@ export class PriorityQueue {
     constructor() {
         this.values = []
     }
-    enqueue(node: Node, fCost: number) {
-        node = { ...node, fCost: fCost }
+    enqueue(node: Node, fCost: number, gCost: number, hCost: number): void {
+        node = { ...node, fCost: fCost, gCost: gCost, hCost }
         this.values.push(node)
         this.bubbleUp()
     }
@@ -42,6 +42,25 @@ export class PriorityQueue {
 
             return dequeuedNode
         }
+    }
+    peek(): Node | null {
+        if (this.values.length === 0) return null
+        return this.values[0]
+    }
+    updateCostsInFrontier(neighbour: Node, fCost: number, gCost: number, hCost: number): Node[] {
+        return this.values.map(node => {
+            if (node.row === neighbour.row && node.column === neighbour.column) {
+                return {
+                    ...node,
+                    distanceFromStart: gCost,
+                    gCost: gCost,
+                    hCost: hCost,
+                    fCost: fCost
+                }
+            } else {
+                return node
+            }
+        })
     }
     sinkDown(): void {
         let parentIdx = 0
@@ -109,7 +128,7 @@ export class PriorityQueue {
             }
         }
     }
-    getParentIdx(childIdx: number) {
+    getParentIdx(childIdx: number): number | null {
         let parentIdx = Math.floor((childIdx - 1) / 2)
         if (childIdx < 0 || childIdx >= this.values.length) {
             // invalid child index
@@ -127,7 +146,18 @@ export class PriorityQueue {
         this.values[idxA] = this.values[idxB]
         this.values[idxB] = temp
     }
-    print() {
+    contains(node: Node) {
+        for (let i = 0; i < this.values.length; i++) {
+            if (this.values[i].row === node.row && this.values[i].column === node.column) {
+                return true
+            }
+        }
+        return false
+    }
+    length(): number {
+        return this.values.length
+    }
+    print(): void {
         console.log(this.values)
     }
 }

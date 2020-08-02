@@ -8,7 +8,6 @@ import { DFSgraph } from "../../algorithms/dfs_graph";
 import { dijkstra_graph } from "../../algorithms/dijkstra_graph";
 import { BFSgraph } from "../../algorithms/bfs_graph";
 import { aStarGraph } from "../../algorithms/a_star_graph";
-import { PriorityQueue } from "../../algorithms/priorityQueue";
 
 export const NUM_OF_ROWS: number = 15;
 export const NUM_OF_COLUMNS: number = 15;

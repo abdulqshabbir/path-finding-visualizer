@@ -1,4 +1,5 @@
 import { Node } from "./node";
+import { PriorityQueue } from './priorityQueue'
 
 export interface aStarGraph {
     startNode: Node;
@@ -73,6 +74,22 @@ export class aStarGraph {
             })
         );
     }
+    updateCostsInGrid(node: Node, fCost: number, gCost: number, hCost: number) {
+        this.grid = this.grid.map(row => {
+            return row.map(n => {
+                if (n.row === node.row && n.column === node.column) {
+                    return {
+                        ...node,
+                        fCost: fCost,
+                        gCost: gCost,
+                        hCost: hCost
+                    }
+                } else {
+                    return node
+                }
+            })
+        })
+    }
     isNeighbourVisited(neighbour: Node): boolean {
         let isVisited: boolean = this.grid[neighbour.row][neighbour.column].visited;
         if (isVisited) {
@@ -96,7 +113,6 @@ export class aStarGraph {
         }
         return path
     }
-
     hScore(node: Node) {
         // Returns the straight-line distance from given node to target node
         // h score is a 'heuristic' or 'best guess' for which paths to explore next
@@ -125,7 +141,6 @@ export class aStarGraph {
             }
         })
     }
-
     frontierContains(node: Node, frontier: Node[]) {
         for (let i = 0; i < frontier.length; i++) {
             if (frontier[i].row === node.row && frontier[i].column === node.column) {
@@ -134,7 +149,6 @@ export class aStarGraph {
         }
         return false
     }
-
     findLowestFCostNode(frontier: Node[]): Node {
         let minFCost = Infinity
         let bestNode = frontier[0]
@@ -163,70 +177,71 @@ export class aStarGraph {
         return frontier
     }
     aStarSearch(): [Node[], Node[][][]] {
-        let frontier: Node[] = [] // set of all open nodes to be explored
-        let current: Node // current node being examined
+        let frontier: PriorityQueue = new PriorityQueue() // set of all open nodes to be explored
+        let current: Node | null // current node being examined
         let neighbours: Node[] // neighbouring nodes of current
 
         // initialize scores for start node
-        this.startNode.gCost = 0
-        this.startNode.hCost = this.hScore(this.startNode)
-        this.startNode.fCost = 0
-        frontier.push(this.startNode)
+        let hCost = this.hScore(this.startNode)
+        let gCost = 0
+        let fCost = hCost + gCost
 
-        /*
-        
-        WHILE FRONTIER not empty
-                CURRENT = node in FRONTIER with lowest f_cost
-                remove CURRENT from FRONTIER
-                mark CURRENT as VISITED
+        // enqueue operation requires a node (this.startNode) and an fCost (0)
+        frontier.enqueue(this.startNode, fCost, gCost, hCost)
 
-                IF CURRENT === endNode
-                    break
+        while (frontier.length() !== 0) {
+            // peek returns the lowest fCost node in frontier
+            current = frontier.peek()
+            if (current === null) break;
 
-                ELSE
-                    FOR each NEIGHBOUR of CURRENT:
-                        tentative_gScore = gScore(CURRENT, NEIGHBOUR)
-                        IF (tentative_gScore < NEIGHBOUR.gScore)
-                            // path to CURRENT is cheaper so record it and update gCost
-                            mark CURRENT as parent of NEIGHBOUR
-                            NEIGHBOUR.gScore is tentative_gScore
-                            NEIGHBOUR.fScore = fScore(CURRENT, NEIGHBOUR)
+            // dequeue removes the lowest fCost node from frontier
+            frontier.dequeue()
 
-                            // if NEIGHBOUR is not already in FRONTIER add NEIGHBOUR
-                            IF (NEIGHBOUR not in FRONTIER & not in VISITED)
-                                add NEIGHBOUR to FRONTIER
-
-            
-            path = reconstructPath()
-
-            return [path, frames]
-        */
-
-        while (frontier.length !== 0) {
-            current = this.findLowestFCostNode(frontier)
-            this.removeCurrentFromFrontier(frontier, current)
+            // mark nodes as visited in this.grid for animating path
             this.markNodeAsVisited(current.row, current.column)
             this.gridFrames.push(this.grid.slice())
 
-            if (current.isEnd) {
-                break;
-            } else {
+            if (current.isEnd) break;
+
+            else {
+
                 neighbours = this.findNeighbours(current.row, current.column)
 
                 for (let i = 0; i < neighbours.length; i++) {
+
                     // if neighbour not in frontier, add neighbour
-                    if (!this.frontierContains(neighbours[i], frontier) && !neighbours[i].visited) {
-                        frontier.push(neighbours[i])
+                    if (!frontier.contains(neighbours[i]) && !neighbours[i].visited) {
+
+                        // note that these are costs of the 'ith neighbour'
+                        let gCost = this.gScore(current, neighbours[i])
+                        let hCost = this.hScore(neighbours[i])
+                        let fCost = gCost + hCost
+
+                        // update costs of ith neighbour
+                        neighbours[i].gCost = gCost
+                        neighbours[i].hCost = hCost
+                        neighbours[i].fCost = fCost
+
+                        // update frontier
+                        frontier.enqueue(neighbours[i], fCost, gCost, hCost)
+
+                        // mark current as the parent of ith neighbour to allow re-tracing of steps
+                        this.markParent(neighbours[i], current)
                     }
+
+                    // if neighbour is not yet visited, calculate gScore to neighbour and compare with current gScore
                     if (!neighbours[i].visited) {
                         let tentativeGCost = this.gScore(current, neighbours[i])
+                        let hCost = this.hScore(neighbours[i])
+                        let fCost = tentativeGCost + hCost
+
                         if (tentativeGCost < neighbours[i].gCost) {
                             // path to current is cheaper so record it
                             this.markParent(neighbours[i], current)
 
-                            // update g-h-f score of neighbour in frontier
-                            // note this returns another array (no mutation)
-                            frontier = this.updateCostsInFrontier(frontier, neighbours[i], tentativeGCost)
+                            // update f, g, h scores in priority queue
+                            frontier.updateCostsInFrontier(neighbours[i], fCost, tentativeGCost, hCost)
+
                         }
                     }
                 }
