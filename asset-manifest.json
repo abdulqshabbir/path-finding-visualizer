@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/path-finding-visualizer/static/css/main.4eae35ea.chunk.css",
+    "main.js": "/path-finding-visualizer/static/js/main.c7e1c5ba.chunk.js",
+    "main.js.map": "/path-finding-visualizer/static/js/main.c7e1c5ba.chunk.js.map",
+    "runtime-main.js": "/path-finding-visualizer/static/js/runtime-main.bd8a6f8d.js",
+    "runtime-main.js.map": "/path-finding-visualizer/static/js/runtime-main.bd8a6f8d.js.map",
+    "static/css/2.89c57647.chunk.css": "/path-finding-visualizer/static/css/2.89c57647.chunk.css",
+    "static/js/2.1d1abbed.chunk.js": "/path-finding-visualizer/static/js/2.1d1abbed.chunk.js",
+    "static/js/2.1d1abbed.chunk.js.map": "/path-finding-visualizer/static/js/2.1d1abbed.chunk.js.map",
+    "index.html": "/path-finding-visualizer/index.html",
+    "precache-manifest.dafab77fe98f3ce4b769f7867bb83d65.js": "/path-finding-visualizer/precache-manifest.dafab77fe98f3ce4b769f7867bb83d65.js",
+    "service-worker.js": "/path-finding-visualizer/service-worker.js",
+    "static/css/2.89c57647.chunk.css.map": "/path-finding-visualizer/static/css/2.89c57647.chunk.css.map",
+    "static/css/main.4eae35ea.chunk.css.map": "/path-finding-visualizer/static/css/main.4eae35ea.chunk.css.map",
+    "static/js/2.1d1abbed.chunk.js.LICENSE.txt": "/path-finding-visualizer/static/js/2.1d1abbed.chunk.js.LICENSE.txt",
+    "static/media/font-awesome.min.css": "/path-finding-visualizer/static/media/fontawesome-webfont.fee66e71.woff"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.bd8a6f8d.js",
+    "static/css/2.89c57647.chunk.css",
+    "static/js/2.1d1abbed.chunk.js",
+    "static/css/main.4eae35ea.chunk.css",
+    "static/js/main.c7e1c5ba.chunk.js"
+  ]
+}
