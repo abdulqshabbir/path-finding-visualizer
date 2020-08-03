@@ -1,7 +1,7 @@
 {
   "files.exclude": {
-    "README.md": true,
-    "package.json": true,
+    "README.md": false,
+    "package.json": false,
     "package-lock.json": true,
     "tsconfig.json": true,
     "gitignore": true,
