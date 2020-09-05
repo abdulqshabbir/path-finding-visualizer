@@ -27,9 +27,6 @@ function Tutorial() {
     case 4:
       tutorialMessage = "Use E (uppercase) to removes weights!";
       break;
-    case 5:
-      tutorialMessage = "That's it!";
-      break;
     default:
       tutorialMessage = "That's it!";
       break;
